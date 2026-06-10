@@ -8,6 +8,9 @@
 :root{--blue:#0b3d91;--line:#e5e7eb;--soft:#f8fafc;--text:#1f2937;--muted:#6b7280;--card:#fff}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#f4f6fb;color:var(--text)}
 .wrap{max-width:1240px;margin:0 auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:14px}.logo-pair{display:flex;align-items:center;gap:8px}.logo{width:54px;height:54px;border-radius:14px;background:#fecaca;display:grid;place-items:center;font-weight:900;color:#991b1b;font-size:26px;box-shadow:inset 0 0 0 2px #ef4444;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}.vs-dot{font-size:11px;font-weight:900;color:#64748b}h1{font-size:34px;line-height:1.1;margin:0;color:#0f172a}.actions{display:flex;gap:10px;flex-wrap:wrap}button,.btn{border:1px solid #2563eb;background:white;color:#1d4ed8;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none}button.primary{background:#1d4ed8;color:white}.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(15,23,42,.04);padding:16px;margin-bottom:16px}.controls{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px}.control label{font-size:12px;font-weight:800;text-transform:uppercase;color:#64748b;display:block;margin-bottom:6px}.control input,.control select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white}.section-title{font-size:20px;font-weight:900;color:var(--blue);display:flex;align-items:center;gap:8px;margin:0 0 14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid2{display:grid;grid-template-columns:1fr 1.7fr;gap:22px}.game-card,.summary-card{border:1px solid #dbe3ef;border-radius:8px;padding:14px;background:white;min-height:185px}.summary-card{background:linear-gradient(135deg,#f8fbff,#eff8ff)}.game-card h3{margin:0 0 10px;font-size:15px;color:var(--blue)}.lines{white-space:pre-wrap;font-size:14px;line-height:1.65}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:white}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:9px 10px;text-align:left;white-space:nowrap}th{background:#f8fafc;color:#4b5563;font-weight:800}tr:last-child td{border-bottom:0}.foot{font-size:12px;color:#64748b}.hidden{display:none!important}.email{width:100%;min-height:360px;border:1px solid var(--line);border-radius:8px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#1e40af;font-weight:800;font-size:12px}.small-note{color:#64748b;font-size:13px;line-height:1.5}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px;border-radius:8px;margin-top:10px}@media(max-width:950px){.controls,.grid3,.grid2{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+.tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px}.tab-btn{border:1px solid var(--line);background:#f8fafc;color:#334155}.tab-btn.active{background:#1d4ed8;color:white;border-color:#1d4ed8}.tab-panel{display:none}.tab-panel.active{display:block}.settings-grid{display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:12px}.range-row{display:flex;align-items:center;gap:8px}.range-row input{flex:1}.range-value{font-size:12px;font-weight:800;color:#475569;min-width:42px}.check-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:white}.check-row input{width:auto}.settings-note{margin-top:12px;padding:10px 12px;border-radius:8px;background:#eef6ff;color:#1e3a8a;font-size:13px;line-height:1.45}
+@media(max-width:950px){.settings-grid{grid-template-columns:1fr 1fr}}
+
 
 
 /* Two-page landscape PDF export */
@@ -109,10 +112,15 @@
 <div class="wrap">
   <div class="topbar screen-topbar">
     <div class="brand"><div class="logo-pair"><div class="logo" id="homeLogoBox">LE</div><span class="vs-dot">VS</span><div class="logo" id="oppLogoBox">OPP</div></div><h1 id="pageTitle">Pregame Report Generator</h1></div>
-    <div class="actions"><button onclick="copyReport()">📋 Copy Report</button><button onclick="window.print()">⬇ Export PDF</button></div>
+    <div class="actions"><button onclick="copyReport()">📋 Copy Report</button><button onclick="exportPDF()">⬇ Export PDF</button></div>
   </div>
 
   <div class="panel controls-panel">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('builder')">📥 Report Builder</button>
+      <button class="tab-btn" onclick="showTab('pdfsettings')">⚙️ PDF Settings</button>
+    </div>
+    <div id="builderTab" class="tab-panel active">
     <div class="section-title">📥 Import CSVs</div>
     <div class="controls">
       <div class="control"><label>Pregame / Game CSV</label><input id="gameFile" type="file" accept=".csv"></div>
@@ -128,6 +136,30 @@
       <div class="control"><label>&nbsp;</label><button class="primary" onclick="generate()">Generate Report</button></div>
     </div>
     <div class="small-note">Upload the same four CSVs you used before. You can edit the header title and choose the opponent logo before exporting. The site will detect SBA from <b>BaseStealAtt</b> when present, or from <b>atbatDesc</b>, and will parse bunt results from <b>pitchResult</b>.</div>
+    </div>
+
+    <div id="pdfsettingsTab" class="tab-panel">
+      <div class="section-title">⚙️ PDF Format / Dimensions</div>
+      <div class="settings-grid">
+        <div class="control"><label>Page Size</label><select id="pdfPageSize"><option value="letter">Letter</option><option value="legal">Legal</option><option value="a4">A4</option></select></div>
+        <div class="control"><label>Orientation</label><select id="pdfOrientation"><option value="landscape">Landscape</option><option value="portrait">Portrait</option></select></div>
+        <div class="control"><label>Margin (inches)</label><input id="pdfMargin" type="number" min="0" max="1" step="0.01" value="0.08"></div>
+        <div class="control"><label>Page Scale</label><div class="range-row"><input id="pdfScale" type="range" min="0.80" max="1.08" step="0.01" value="1"><span class="range-value" id="pdfScaleVal">100%</span></div></div>
+        <div class="control"><label>Section Gap</label><div class="range-row"><input id="pdfGap" type="range" min="2" max="14" step="1" value="6"><span class="range-value" id="pdfGapVal">6px</span></div></div>
+        <div class="control"><label>Header Font</label><div class="range-row"><input id="pdfHeaderFont" type="range" min="16" max="32" step="1" value="23"><span class="range-value" id="pdfHeaderFontVal">23px</span></div></div>
+        <div class="control"><label>Section Title Font</label><div class="range-row"><input id="pdfTitleFont" type="range" min="8" max="16" step="0.5" value="10.8"><span class="range-value" id="pdfTitleFontVal">10.8px</span></div></div>
+        <div class="control"><label>Table Font</label><div class="range-row"><input id="pdfTableFont" type="range" min="5" max="10" step="0.1" value="6.75"><span class="range-value" id="pdfTableFontVal">6.75px</span></div></div>
+        <div class="control"><label>Player Table Font</label><div class="range-row"><input id="pdfPlayerFont" type="range" min="4.8" max="8.5" step="0.1" value="5.65"><span class="range-value" id="pdfPlayerFontVal">5.65px</span></div></div>
+        <div class="control"><label>Table Row Height</label><div class="range-row"><input id="pdfCellPad" type="range" min="0.6" max="3" step="0.05" value="1.08"><span class="range-value" id="pdfCellPadVal">1.08px</span></div></div>
+        <label class="check-row"><input id="showRecent" type="checkbox" checked> Recent Games</label>
+        <label class="check-row"><input id="showOverall" type="checkbox" checked> Overall SBA Summary</label>
+        <label class="check-row"><input id="showTeamTable" type="checkbox" checked> Team SBA Count Table</label>
+        <label class="check-row"><input id="showPlayers" type="checkbox" checked> SBA By Player</label>
+        <label class="check-row"><input id="showBunts" type="checkbox" checked> Bunt Attempts</label>
+      </div>
+      <div class="settings-note">Tip: export once, then adjust table font, row height, margin, or scale until the PDF fits exactly how you want. These settings only affect the exported PDF, not the website preview.</div>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button onclick="applyPdfSettings()">Apply Settings</button><button onclick="resetPdfSettings()">Reset Defaults</button><button class="primary" onclick="exportPDF()">Export PDF</button></div>
+    </div>
     <div id="messages"></div>
   </div>
 
@@ -406,29 +438,29 @@ function buildPrintSummary(team,opp,cards){
       <div class="topbar">
         <div class="brand"><div class="logo-pair">${logoHtml(document.getElementById('homeLogoSelect')?.value||'leones')}<span class="vs-dot">VS</span>${logoHtml(document.getElementById('oppLogoSelect')?.value||'aguilas')}</div><div><h1>${reportTitleValue(team,opp)}</h1><div class="pdf-meta">Generated ${today} • Recent Games • Overall SBA • Player SBA • Bunt Attempts</div></div></div>
       </div>
-      <div class="pdf-section tight one-recent">
+      <div class="pdf-section tight one-recent pdf-block-recent">
         <div class="pdf-title">I. Recent Games</div>
         <div class="pdf-grid-3">${cards.map(c=>`<div class="pdf-card"><h3>${c.split('\n')[0]}</h3><div class="pdf-lines">${c.split('\n').slice(1).join('\n')}</div></div>`).join('')}</div>
       </div>
-      <div class="top-row">
-        <div class="pdf-section tight">
+      <div class="top-row pdf-block-toprow">
+        <div class="pdf-section tight pdf-block-overall">
           <div class="pdf-title">II. ${team} – Overall SBA</div>
           <div class="summary-mini">${document.getElementById('overallText').textContent}</div>
         </div>
-        <div class="pdf-section tight">
+        <div class="pdf-section tight pdf-block-teamtable">
           <div class="pdf-title">II. ${team} – Team SBA by Count</div>
           ${tableHtml(teamRows,teamCols,'compact')}
         </div>
       </div>
-      <div class="bottom-row">
-        <div class="pdf-section tight">
+      <div class="bottom-row pdf-block-bottomrow">
+        <div class="pdf-section tight pdf-block-players">
           <div class="pdf-title">III. ${team} – SBA By Player</div>
           <div class="subgrid">
             <div><div class="pdf-title" style="font-size:8px;margin-bottom:4px">Top 5 SBA Players</div><div class="leader-list">${topSbaText}</div></div>
             <div>${tableHtml(playerRows,playerCols,'players')}</div>
           </div>
         </div>
-        <div class="pdf-section tight">
+        <div class="pdf-section tight pdf-block-bunts">
           <div class="pdf-title">IV. ${team} – Bunt Attempts</div>
           <div class="subgrid-bunt">
             <div><div class="pdf-title" style="font-size:8px;margin-bottom:4px">Top 5 Bunters</div><div class="leader-list">${topBuntText}</div></div>
@@ -462,6 +494,80 @@ document.getElementById('customTitle').addEventListener('input',()=>{document.ge
 document.getElementById('homeLogoSelect').addEventListener('change',updateLogos);
 document.getElementById('oppLogoSelect').addEventListener('change',updateLogos);
 updateLogos();
+
+function showTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(name==='builder'){document.getElementById('builderTab').classList.add('active'); document.querySelectorAll('.tab-btn')[0].classList.add('active');}
+  if(name==='pdfsettings'){document.getElementById('pdfsettingsTab').classList.add('active'); document.querySelectorAll('.tab-btn')[1].classList.add('active');}
+}
+function pdfSetting(id, fallback){const el=document.getElementById(id); return el?el.value:fallback;}
+function pdfChecked(id){const el=document.getElementById(id); return !el || el.checked;}
+function paperDims(size, orientation){
+  const map={letter:[11,8.5],legal:[14,8.5],a4:[11.69,8.27]};
+  let [w,h]=map[size]||map.letter;
+  if(orientation==='portrait'){[w,h]=[Math.min(w,h),Math.max(w,h)]} else {[w,h]=[Math.max(w,h),Math.min(w,h)]}
+  return {w,h};
+}
+function applyPdfSettings(){
+  const size=pdfSetting('pdfPageSize','letter'), orientation=pdfSetting('pdfOrientation','landscape');
+  const margin=Math.max(0,parseFloat(pdfSetting('pdfMargin','0.08'))||0);
+  const {w,h}=paperDims(size,orientation);
+  const innerW=Math.max(1,w-margin*2), innerH=Math.max(1,h-margin*2);
+  const scale=parseFloat(pdfSetting('pdfScale','1'))||1;
+  const gap=parseFloat(pdfSetting('pdfGap','6'))||6;
+  const header=parseFloat(pdfSetting('pdfHeaderFont','23'))||23;
+  const title=parseFloat(pdfSetting('pdfTitleFont','10.8'))||10.8;
+  const table=parseFloat(pdfSetting('pdfTableFont','6.75'))||6.75;
+  const player=parseFloat(pdfSetting('pdfPlayerFont','5.65'))||5.65;
+  const cell=parseFloat(pdfSetting('pdfCellPad','1.08'))||1.08;
+  let st=document.getElementById('pdfDynamicStyle');
+  if(!st){st=document.createElement('style'); st.id='pdfDynamicStyle'; document.head.appendChild(st);}
+  st.textContent=`
+@media print{
+  @page{size:${size} ${orientation};margin:0!important}
+  html,body{width:${w}in!important;height:${h}in!important;margin:0!important;padding:0!important;overflow:hidden!important}
+  .wrap{width:${w}in!important;height:${h}in!important;padding:${margin}in!important;margin:0!important;overflow:hidden!important}
+  #printSummary{width:${innerW}in!important;height:${innerH}in!important;overflow:hidden!important;transform:scale(${scale})!important;transform-origin:top left!important}
+  .print-page{width:${innerW}in!important;height:${innerH}in!important;max-height:${innerH}in!important;gap:${gap}px!important;overflow:hidden!important}
+  .topbar h1,h1{font-size:${header}px!important}
+  .pdf-title{font-size:${title}px!important}
+  .pdf-table.compact{font-size:${table}px!important}
+  .pdf-table.compact th,.pdf-table.compact td{padding:${cell}px ${Math.max(1.1,cell+0.6)}px!important}
+  .pdf-table.players{font-size:${player}px!important}
+  .pdf-table.players th,.pdf-table.players td{padding:${Math.max(.55,cell-0.15)}px ${Math.max(.8,cell)}px!important}
+  .pdf-table.bunts{font-size:${table}px!important}
+  .pdf-table.bunts th,.pdf-table.bunts td{padding:${cell}px ${Math.max(1.1,cell+0.6)}px!important}
+  ${pdfChecked('showRecent')?'':'.pdf-block-recent{display:none!important}'}
+  ${pdfChecked('showOverall')?'':'.pdf-block-overall{display:none!important}'}
+  ${pdfChecked('showTeamTable')?'':'.pdf-block-teamtable{display:none!important}'}
+  ${pdfChecked('showPlayers')?'':'.pdf-block-players{display:none!important}'}
+  ${pdfChecked('showBunts')?'':'.pdf-block-bunts{display:none!important}'}
+  ${(!pdfChecked('showOverall')&&!pdfChecked('showTeamTable'))?'.pdf-block-toprow{display:none!important}':''}
+  ${(!pdfChecked('showPlayers')&&!pdfChecked('showBunts'))?'.pdf-block-bottomrow{display:none!important}':''}
+}
+`;
+}
+function exportPDF(){
+  applyPdfSettings();
+  if(!document.getElementById('printSummary').innerHTML.trim()){msg('Generate a report first.');return;}
+  window.print();
+}
+function resetPdfSettings(){
+  const vals={pdfPageSize:'letter',pdfOrientation:'landscape',pdfMargin:'0.08',pdfScale:'1',pdfGap:'6',pdfHeaderFont:'23',pdfTitleFont:'10.8',pdfTableFont:'6.75',pdfPlayerFont:'5.65',pdfCellPad:'1.08'};
+  Object.entries(vals).forEach(([id,v])=>{const el=document.getElementById(id); if(el) el.value=v;});
+  ['showRecent','showOverall','showTeamTable','showPlayers','showBunts'].forEach(id=>{const el=document.getElementById(id); if(el) el.checked=true;});
+  updatePdfSettingLabels(); applyPdfSettings();
+}
+function updatePdfSettingLabels(){
+  const pairs=[['pdfScale','pdfScaleVal',v=>Math.round(parseFloat(v)*100)+'%'],['pdfGap','pdfGapVal',v=>v+'px'],['pdfHeaderFont','pdfHeaderFontVal',v=>v+'px'],['pdfTitleFont','pdfTitleFontVal',v=>v+'px'],['pdfTableFont','pdfTableFontVal',v=>v+'px'],['pdfPlayerFont','pdfPlayerFontVal',v=>v+'px'],['pdfCellPad','pdfCellPadVal',v=>v+'px']];
+  pairs.forEach(([input,label,fmt])=>{const el=document.getElementById(input), lab=document.getElementById(label); if(el&&lab) lab.textContent=fmt(el.value);});
+}
+['pdfScale','pdfGap','pdfHeaderFont','pdfTitleFont','pdfTableFont','pdfPlayerFont','pdfCellPad','pdfPageSize','pdfOrientation','pdfMargin','showRecent','showOverall','showTeamTable','showPlayers','showBunts'].forEach(id=>{
+  const el=document.getElementById(id); if(el){el.addEventListener('input',()=>{updatePdfSettingLabels(); applyPdfSettings();}); el.addEventListener('change',()=>{updatePdfSettingLabels(); applyPdfSettings();});}
+});
+updatePdfSettingLabels();
+applyPdfSettings();
 
 async function copyReport(){const t=document.getElementById('emailText').value; if(!t){msg('Generate a report first.'); return;} await navigator.clipboard.writeText(t); msg('Report copied to clipboard.');}
 </script>
