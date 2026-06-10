@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Pregame Report Generator</title>
 <style>
-:root{--blue:#0b3d91;--line:#e5e7eb;--soft:#f8fafc;--text:#1f2937;--muted:#6b7280;--card:#fff}
+:root{--blue:#0b3d91;--opp-accent:#0b3d91;--opp-dark:#082e73;--opp-tint:#eaf1fb;--opp-row:#f3f6fb;--opp-border:#94a3b8;--line:#e5e7eb;--soft:#f8fafc;--text:#1f2937;--muted:#6b7280;--card:#fff}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#f4f6fb;color:var(--text)}
-.wrap{max-width:1240px;margin:0 auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:14px}.logo-pair{display:flex;align-items:center;gap:8px}.logo{width:54px;height:54px;border-radius:14px;background:#fecaca;display:grid;place-items:center;font-weight:900;color:#991b1b;font-size:26px;box-shadow:inset 0 0 0 2px #ef4444;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}.vs-dot{font-size:11px;font-weight:900;color:#64748b}h1{font-size:34px;line-height:1.1;margin:0;color:#0f172a}.actions{display:flex;gap:10px;flex-wrap:wrap}button,.btn{border:1px solid #2563eb;background:white;color:#1d4ed8;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none}button.primary{background:#1d4ed8;color:white}.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(15,23,42,.04);padding:16px;margin-bottom:16px}.controls{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px}.control label{font-size:12px;font-weight:800;text-transform:uppercase;color:#64748b;display:block;margin-bottom:6px}.control input,.control select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white}.section-title{font-size:20px;font-weight:900;color:var(--blue);display:flex;align-items:center;gap:8px;margin:0 0 14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid2{display:grid;grid-template-columns:1fr 1.7fr;gap:22px}.game-card,.summary-card{border:1px solid #dbe3ef;border-radius:8px;padding:14px;background:white;min-height:185px}.summary-card{background:linear-gradient(135deg,#f8fbff,#eff8ff)}.game-card h3{margin:0 0 10px;font-size:15px;color:var(--blue)}.lines{white-space:pre-wrap;font-size:14px;line-height:1.65}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:white}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:9px 10px;text-align:left;white-space:nowrap}th{background:#f8fafc;color:#4b5563;font-weight:800}tr:last-child td{border-bottom:0}.foot{font-size:12px;color:#64748b}.hidden{display:none!important}.email{width:100%;min-height:360px;border:1px solid var(--line);border-radius:8px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#1e40af;font-weight:800;font-size:12px}.small-note{color:#64748b;font-size:13px;line-height:1.5}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px;border-radius:8px;margin-top:10px}@media(max-width:950px){.controls,.grid3,.grid2{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+.wrap{max-width:1240px;margin:0 auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:14px}.logo-pair{display:flex;align-items:center;gap:8px}.logo{width:54px;height:54px;border-radius:14px;background:#fecaca;display:grid;place-items:center;font-weight:900;color:#991b1b;font-size:26px;box-shadow:inset 0 0 0 2px #ef4444;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain;display:block}.vs-dot{font-size:11px;font-weight:900;color:#64748b}h1{font-size:34px;line-height:1.1;margin:0;color:#0f172a}.actions{display:flex;gap:10px;flex-wrap:wrap}button,.btn{border:1px solid #2563eb;background:white;color:#1d4ed8;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none}button.primary{background:#1d4ed8;color:white}.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(15,23,42,.04);padding:16px;margin-bottom:16px}.controls{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px}.control label{font-size:12px;font-weight:800;text-transform:uppercase;color:#64748b;display:block;margin-bottom:6px}.control input,.control select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white}.section-title{font-size:20px;font-weight:900;color:var(--blue);display:flex;align-items:center;gap:8px;margin:0 0 14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid2{display:grid;grid-template-columns:1fr 1.7fr;gap:22px}.insight-grid{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:14px}.insight-card{border:1px solid #dbe3ef;border-radius:8px;background:linear-gradient(135deg,#ffffff,#f8fbff);padding:14px;min-height:150px}.insight-card h3{margin:0 0 8px;color:var(--blue);font-size:15px}.mini-table table{font-size:12px}.game-card,.summary-card{border:1px solid #dbe3ef;border-radius:8px;padding:14px;background:white;min-height:185px}.summary-card{background:linear-gradient(135deg,#f8fbff,#eff8ff)}.game-card h3{margin:0 0 10px;font-size:15px;color:var(--blue)}.lines{white-space:pre-wrap;font-size:14px;line-height:1.65}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:white}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:9px 10px;text-align:left;white-space:nowrap}th{background:#f8fafc;color:#4b5563;font-weight:800}tbody tr:nth-child(even) td{background:#f8fafc}tr:last-child td{border-bottom:1px solid var(--line)}table{border:1px solid var(--line)}.foot{font-size:12px;color:#64748b}.hidden{display:none!important}.email{width:100%;min-height:360px;border:1px solid var(--line);border-radius:8px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#1e40af;font-weight:800;font-size:12px}.small-note{color:#64748b;font-size:13px;line-height:1.5}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px;border-radius:8px;margin-top:10px}@media(max-width:950px){.controls,.grid3,.grid2{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
 .tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px}.tab-btn{border:1px solid var(--line);background:#f8fafc;color:#334155}.tab-btn.active{background:#1d4ed8;color:white;border-color:#1d4ed8}.tab-panel{display:none}.tab-panel.active{display:block}.settings-grid{display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:12px}.range-row{display:flex;align-items:center;gap:8px}.range-row input{flex:1}.range-value{font-size:12px;font-weight:800;color:#475569;min-width:42px}.check-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:white}.check-row input{width:auto}.settings-note{margin-top:12px;padding:10px 12px;border-radius:8px;background:#eef6ff;color:#1e3a8a;font-size:13px;line-height:1.45}
 @media(max-width:950px){.settings-grid{grid-template-columns:1fr 1fr}}
 
@@ -24,19 +24,19 @@
   .wrap{max-width:none;width:10.66in;padding:0;margin:0 auto}
   .print-page{height:8.12in;page-break-after:always;break-after:page;overflow:hidden;display:flex;flex-direction:column;gap:9px;background:white}
   .print-page:last-child{page-break-after:auto;break-after:auto}
-  .topbar{margin:0 0 3px;gap:10px;border-bottom:4px solid #082e73;padding-bottom:7px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
+  .topbar{margin:0 0 3px;gap:10px;border-bottom:4px solid var(--opp-accent);padding-bottom:7px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
   .brand{display:flex;align-items:center;gap:13px}
-  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:43px;height:43px;border-radius:9px;font-size:18px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}
+  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:43px;height:43px;border-radius:9px;font-size:18px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain;display:block}
   h1{font-size:25px;line-height:1;margin:0;color:#0f172a;font-weight:900}
   .pdf-meta{font-size:9px;color:#475569;margin-top:5px;letter-spacing:.01em}
   .pdf-section{border:1.4px solid #cbd5e1;border-radius:6px;padding:9px 10px;background:white;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden}
   .pdf-section.flex{flex:1;min-height:0;overflow:hidden}
-  .pdf-title{display:inline-block;background:#092f73;color:white;font-size:14px;font-weight:900;margin:-2px 0 7px -1px;text-transform:uppercase;letter-spacing:.015em;padding:4px 10px;border-radius:4px;line-height:1}
+  .pdf-title{display:inline-block;background:var(--opp-accent);color:white;font-size:14px;font-weight:900;margin:-2px 0 7px -1px;text-transform:uppercase;letter-spacing:.015em;padding:4px 10px;border-radius:4px;line-height:1}
   .pdf-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:1.74in}
   .pdf-grid-2{display:grid;grid-template-columns:.72fr 1.68fr;gap:14px;min-height:0;flex:1}
   .pdf-grid-2.equal{grid-template-columns:1fr 1fr;flex:0 0 auto;min-height:1.2in}
   .pdf-card{border:1.2px solid #cbd5e1;border-radius:6px;padding:8px 11px;background:white;min-height:1.57in;overflow:hidden}
-  .pdf-card h3{font-size:11px;margin:0 0 7px;color:#092f73;line-height:1.1;text-transform:uppercase;font-weight:900}
+  .pdf-card h3{font-size:11px;margin:0 0 7px;color:var(--opp-accent);line-height:1.1;text-transform:uppercase;font-weight:900}
   .pdf-lines{font-size:9.4px;line-height:1.34;white-space:pre-wrap;color:#111827}
   .pdf-bullets{font-size:11.2px;line-height:1.58;white-space:pre-wrap;color:#111827;padding-top:2px}
   .pdf-table{width:100%;border-collapse:collapse;font-size:8.4px;line-height:1.05;table-layout:auto;color:#111827}
@@ -61,30 +61,30 @@
   .print-only{display:block!important}
   .wrap{max-width:none;width:10.74in;padding:0;margin:0 auto}
   .print-page{height:8.24in;page-break-after:auto!important;break-after:auto!important;overflow:hidden;display:flex;flex-direction:column;gap:6px;background:white}
-  .topbar{margin:0 0 2px;gap:10px;border-bottom:4px solid #082e73;padding-bottom:5px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
+  .topbar{margin:0 0 2px;gap:10px;border-bottom:4px solid var(--opp-accent);padding-bottom:5px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
   .brand{display:flex;align-items:center;gap:12px}
-  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:40px;height:40px;border-radius:8px;font-size:17px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}
+  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:40px;height:40px;border-radius:8px;font-size:17px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain;display:block}
   h1{font-size:23px;line-height:1;margin:0;color:#0f172a;font-weight:900}
   .pdf-meta{font-size:8.3px;color:#475569;margin-top:4px;letter-spacing:.01em}
-  .pdf-section{border:1.2px solid #94a3b8;border-radius:5px;padding:7px 8px;background:white;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden}
+  .pdf-section{border:1.2px solid var(--opp-border);border-radius:5px;padding:7px 8px;background:white;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden}
   .pdf-section.tight{padding:5px 7px}
-  .pdf-title{display:inline-block;background:#092f73;color:white;font-size:10.8px;font-weight:900;margin:-1px 0 5px -1px;text-transform:uppercase;letter-spacing:.015em;padding:3px 9px;border-radius:3px;line-height:1}
-  .one-recent{flex:0 0 1.47in}
+  .pdf-title{display:inline-block;background:var(--opp-accent);color:white;font-size:10.8px;font-weight:900;margin:-1px 0 5px -1px;text-transform:uppercase;letter-spacing:.015em;padding:3px 9px;border-radius:3px;line-height:1}
+  .insight-row{display:grid;grid-template-columns:1.05fr .9fr 1.35fr;gap:6px;flex:0 0 .92in}.pdf-mini-card{border:1px solid var(--opp-border);border-radius:5px;padding:5px 6px;background:linear-gradient(135deg,#ffffff,var(--opp-row));overflow:hidden}.pdf-mini-title{font-size:7.5px;font-weight:900;text-transform:uppercase;color:var(--opp-accent);margin-bottom:3px}.pdf-mini-lines{font-size:6.5px;line-height:1.18;white-space:pre-wrap}.pdf-mini-card .pdf-table{font-size:5.7px}.pdf-mini-card .pdf-table th,.pdf-mini-card .pdf-table td{padding:.8px 1.2px;max-width:70px}.one-recent{flex:0 0 1.20in}
   .pdf-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;min-height:0}
-  .pdf-card{border:1px solid #94a3b8;border-radius:5px;padding:6px 9px;background:white;height:1.18in;overflow:hidden}
-  .pdf-card h3{font-size:9.1px;margin:0 0 4px;color:#092f73;line-height:1.1;text-transform:uppercase;font-weight:900}
+  .pdf-card{border:1px solid var(--opp-border);border-radius:5px;padding:6px 9px;background:white;height:1.18in;overflow:hidden}
+  .pdf-card h3{font-size:9.1px;margin:0 0 4px;color:var(--opp-accent);line-height:1.1;text-transform:uppercase;font-weight:900}
   .pdf-lines{font-size:7.45px;line-height:1.2;white-space:pre-wrap;color:#111827}
   .top-row{display:grid;grid-template-columns:.92fr 2.12fr;gap:9px;flex:0 0 3.03in;min-height:0}
   .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;min-height:0;overflow:hidden}
   .subgrid{display:grid;grid-template-columns:.75fr 1.65fr;gap:7px;height:100%;min-height:0}
   .subgrid-bunt{display:grid;grid-template-columns:.72fr 1.45fr;gap:7px;height:100%;min-height:0}
   .summary-mini{font-size:8.5px;line-height:1.36;white-space:pre-wrap;color:#111827;padding:2px 3px}
-  .pdf-table{width:100%;border-collapse:collapse;border:1px solid #94a3b8!important;table-layout:auto;color:#111827;background:white}
-  .pdf-table th,.pdf-table td{border:1px solid #c0cad8!important;padding:1.55px 2.4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
-  .pdf-table th{background:#eaf1fb!important;color:#0f172a;font-weight:900}
-  .pdf-table tbody tr:nth-child(even) td{background:#f3f6fb!important}
+  .pdf-table{width:100%;border-collapse:collapse;border:1px solid var(--opp-border)!important;table-layout:auto;color:#111827;background:white}
+  .pdf-table th,.pdf-table td{border:1px solid var(--opp-border)!important;padding:1.55px 2.4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
+  .pdf-table th{background:var(--opp-tint)!important;color:#0f172a;font-weight:900}
+  .pdf-table tbody tr:nth-child(even) td{background:var(--opp-row)!important}
   .pdf-table tbody tr:nth-child(odd) td{background:#ffffff!important}
-  .pdf-table tbody tr:last-child td{border-bottom:1px solid #94a3b8!important}
+  .pdf-table tbody tr:last-child td{border-bottom:1px solid var(--opp-border)!important}
   .pdf-table.compact{font-size:6.75px;line-height:1.0}
   .pdf-table.compact th,.pdf-table.compact td{padding:1.08px 1.7px;max-width:72px}
   .pdf-table.players{font-size:5.65px;line-height:.98}
@@ -130,12 +130,12 @@
       <div class="control"><label>Report Team</label><input id="reportTeam" placeholder="AGU"></div>
       <div class="control"><label>Opponent</label><select id="opponentSelect"></select></div>
       <div class="control"><label>Header Title</label><input id="customTitle" placeholder="Pregame Report – AGU vs ESC"></div>
-      <div class="control"><label>Home Logo</label><select id="homeLogoSelect"><option value="leones">Leones del Escogido</option></select></div>
-      <div class="control"><label>Opponent Logo</label><select id="oppLogoSelect"><option value="aguilas">Aguilas Cibaeñas</option><option value="licey">Tigres del Licey</option><option value="toros">Toros del Este</option><option value="estrellas">Estrellas Orientales</option><option value="gigantes">Gigantes del Cibao</option></select></div>
+      <div class="control"><label>Home Logo</label><select id="homeLogoSelect"><option value="escogido">Leones del Escogido</option></select></div>
+      <div class="control"><label>Opponent Logo</label><select id="oppLogoSelect"><option value="auto">Auto-detect from opponent</option><option value="aguilas">Aguilas Cibaeñas</option><option value="licey">Tigres del Licey</option><option value="toros">Toros del Este</option><option value="estrellas">Estrellas Orientales</option><option value="gigantes">Gigantes del Cibao</option></select></div>
       <div class="control"><label>H2H Games</label><input id="h2hN" type="number" min="1" max="5" value="2"></div>
       <div class="control"><label>&nbsp;</label><button class="primary" onclick="generate()">Generate Report</button></div>
     </div>
-    <div class="small-note">Upload the same four CSVs you used before. You can edit the header title and choose the opponent logo before exporting. The site will detect SBA from <b>BaseStealAtt</b> when present, or from <b>atbatDesc</b>, and will parse bunt results from <b>pitchResult</b>.</div>
+    <div class="small-note">Upload the same four CSVs you used before. You can edit the header title. The opponent logo and accent color can auto-detect from the selected opponent, or you can override it manually. The site will detect SBA from <b>BaseStealAtt</b> when present, or from <b>atbatDesc</b>, and will parse bunt results from <b>pitchResult</b>.</div>
     </div>
 
     <div id="pdfsettingsTab" class="tab-panel">
@@ -164,6 +164,15 @@
   </div>
 
   <div id="report" class="hidden">
+    <div class="panel">
+      <div class="section-title">🚨 Advance Report Add-ons</div>
+      <div class="insight-grid">
+        <div class="insight-card"><h3>Coach Notes</h3><div class="lines" id="coachNotes"></div></div>
+        <div class="insight-card"><h3>Recent Trends</h3><div class="lines" id="recentTrends"></div></div>
+        <div class="insight-card"><h3>Pitcher / Catcher Vulnerability</h3><div class="table-wrap mini-table" id="batteryVulnerabilityTable"></div></div>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="section-title">🏆 RECENT GAMES <span id="recentTitle"></span></div>
       <div class="grid3" id="gameCards"></div>
@@ -266,16 +275,98 @@ function dateLabel(s){let d=parseDate(s); if(!d) return s||''; return d.toLocale
 function initials(team){return (team||'PG').slice(0,2).toUpperCase()}
 function reportTitleValue(team,opp){return (document.getElementById('customTitle')?.value || `Pregame Report – ${team} vs ${opp}`).trim()}
 const logoPresets={
-  leones:{abbr:'LE', name:'Leones del Escogido', bg:'#fee2e2', fg:'#991b1b', ring:'#ef4444'},
-  aguilas:{abbr:'AGU', name:'Aguilas Cibaeñas', bg:'#fef3c7', fg:'#92400e', ring:'#f59e0b'},
-  licey:{abbr:'LIC', name:'Tigres del Licey', bg:'#dbeafe', fg:'#1e3a8a', ring:'#2563eb'},
-  toros:{abbr:'TOR', name:'Toros del Este', bg:'#fee2e2', fg:'#7f1d1d', ring:'#dc2626'},
-  estrellas:{abbr:'EO', name:'Estrellas Orientales', bg:'#dcfce7', fg:'#14532d', ring:'#16a34a'},
-  gigantes:{abbr:'GC', name:'Gigantes del Cibao', bg:'#fed7aa', fg:'#7c2d12', ring:'#ea580c'}
+  escogido:{abbr:'LE', code:'ESC', name:'Leones del Escogido', img:'assets/escogido.png', accent:'#C8102E', bg:'#fff5f5', fg:'#7f1d1d', ring:'#C8102E'},
+  aguilas:{abbr:'AGU', code:'AGU', name:'Aguilas Cibaeñas', img:'assets/aguilas.png', accent:'#F2B600', bg:'#fffbeb', fg:'#92400e', ring:'#F2B600'},
+  licey:{abbr:'LIC', code:'LIC', name:'Tigres del Licey', img:'assets/licey.png', accent:'#0047AB', bg:'#eff6ff', fg:'#1e3a8a', ring:'#0047AB'},
+  toros:{abbr:'TOR', code:'TOR', name:'Toros del Este', img:'assets/toros.png', accent:'#F05A28', bg:'#fff7ed', fg:'#7c2d12', ring:'#F05A28'},
+  estrellas:{abbr:'EO', code:'EO', name:'Estrellas Orientales', img:'assets/estrellas.png', accent:'#00843D', bg:'#f0fdf4', fg:'#14532d', ring:'#00843D'},
+  gigantes:{abbr:'GC', code:'GC', name:'Gigantes del Cibao', img:'assets/gigantes.png', accent:'#6B1E3B', bg:'#fff1f2', fg:'#6B1E3B', ring:'#6B1E3B'}
 };
-function logoHtml(key){const l=logoPresets[key]||logoPresets.leones; return `<div class="logo" style="background:${l.bg};color:${l.fg};box-shadow:inset 0 0 0 1.6px ${l.ring}" title="${l.name}">${l.abbr}</div>`}
-function renderLogoBox(id,key){const l=logoPresets[key]||logoPresets.leones; const el=document.getElementById(id); if(!el) return; el.textContent=l.abbr; el.title=l.name; el.style.background=l.bg; el.style.color=l.fg; el.style.boxShadow=`inset 0 0 0 2px ${l.ring}`;}
-function updateLogos(){renderLogoBox('homeLogoBox',document.getElementById('homeLogoSelect')?.value||'leones');renderLogoBox('oppLogoBox',document.getElementById('oppLogoSelect')?.value||'aguilas');}
+const teamAliases={
+  'ESC':'escogido','ESCOGIDO':'escogido','LEONES':'escogido','LEONES DEL ESCOGIDO':'escogido','LE':'escogido',
+  'AGU':'aguilas','AGUILAS':'aguilas','AGUILAS CIBAEÑAS':'aguilas','AGUILAS CIBAEÑAS':'aguilas','AC':'aguilas',
+  'LIC':'licey','LICEY':'licey','TIGRES':'licey','TIGRES DEL LICEY':'licey',
+  'TOR':'toros','TOROS':'toros','TOROS DEL ESTE':'toros',
+  'EO':'estrellas','EST':'estrellas','ESTRELLAS':'estrellas','ESTRELLAS ORIENTALES':'estrellas',
+  'GIG':'gigantes','GC':'gigantes','GIGANTES':'gigantes','GIGANTES DEL CIBAO':'gigantes'
+};
+function detectTeamLogoKey(value){
+  const raw=String(value||'').trim();
+  const key=raw.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(teamAliases[key]) return teamAliases[key];
+  if(key.includes('AGU')) return 'aguilas';
+  if(key.includes('LIC')) return 'licey';
+  if(key.includes('TOR')) return 'toros';
+  if(key.includes('EST')) return 'estrellas';
+  if(key.includes('GIG')) return 'gigantes';
+  if(key.includes('ESCOG')||key.includes('ESC')) return 'escogido';
+  return null;
+}
+function currentOppLogoKey(){
+  const manual=document.getElementById('oppLogoSelect')?.value||'auto';
+  if(manual && manual!=='auto') return manual;
+  return detectTeamLogoKey(document.getElementById('opponentSelect')?.value) || 'aguilas';
+}
+function shadeColor(hex, pct){
+  hex=String(hex||'#0b3d91').replace('#','');
+  if(hex.length===3) hex=hex.split('').map(x=>x+x).join('');
+  const n=parseInt(hex,16);
+  let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  const t=pct<0?0:255, p=Math.abs(pct)/100;
+  r=Math.round((t-r)*p+r); g=Math.round((t-g)*p+g); b=Math.round((t-b)*p+b);
+  return '#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function setBrandAccent(){
+  const key=currentOppLogoKey(); const l=logoPresets[key]||logoPresets.escogido;
+  const accent=l.accent || '#0b3d91';
+  const dark=shadeColor(accent,-28);
+  const tint=l.bg || shadeColor(accent,88);
+  const row=shadeColor(accent,92);
+  const border=shadeColor(accent,45);
+  document.documentElement.style.setProperty('--blue', accent);
+  document.documentElement.style.setProperty('--opp-accent', accent);
+  document.documentElement.style.setProperty('--opp-dark', dark);
+  document.documentElement.style.setProperty('--opp-tint', tint);
+  document.documentElement.style.setProperty('--opp-row', row);
+  document.documentElement.style.setProperty('--opp-border', border);
+  return key;
+}
+function logoHtml(key){
+  const l=logoPresets[key]||logoPresets.escogido;
+  return `<div class="logo" style="background:${l.bg};color:${l.fg};box-shadow:inset 0 0 0 1.6px ${l.ring}" title="${l.name}"><img src="${l.img}" alt="${l.name} logo" onerror="this.replaceWith(document.createTextNode('${l.abbr}'))"></div>`;
+}
+function renderLogoBox(id,key){
+  const l=logoPresets[key]||logoPresets.escogido; const el=document.getElementById(id); if(!el) return;
+  el.innerHTML=`<img src="${l.img}" alt="${l.name} logo" onerror="this.replaceWith(document.createTextNode('${l.abbr}'))">`;
+  el.title=l.name; el.style.background=l.bg; el.style.color=l.fg; el.style.boxShadow=`inset 0 0 0 2px ${l.ring}`;
+}
+function updateLogos(){
+  renderLogoBox('homeLogoBox',document.getElementById('homeLogoSelect')?.value||'escogido');
+  renderLogoBox('oppLogoBox',currentOppLogoKey());
+  setBrandAccent();
+}
+function syncOpponentBranding(){
+  const detected=detectTeamLogoKey(document.getElementById('opponentSelect')?.value||'');
+  const sel=document.getElementById('oppLogoSelect');
+  if(sel && sel.value==='auto' && detected) setBrandAccent();
+  updateLogos();
+}
+function logoKeyFromOpponent(name){
+  const t=String(name||'').toLowerCase();
+  if(t.includes('aguil') || t==='agu') return 'aguilas';
+  if(t.includes('licey') || t.includes('tigres') || t==='lic') return 'licey';
+  if(t.includes('toro') || t==='tor') return 'toros';
+  if(t.includes('estrella') || t==='eo') return 'estrellas';
+  if(t.includes('gigante') || t==='gc') return 'gigantes';
+  return document.getElementById('oppLogoSelect')?.value || 'aguilas';
+}
+function applyAutomaticBranding(){
+  const opp=document.getElementById('opponentSelect')?.value||'';
+  const key=logoKeyFromOpponent(opp);
+  const sel=document.getElementById('oppLogoSelect');
+  if(sel) sel.value=key;
+  updateLogos();
+}
 function parseCsvFile(input, cb){const f=input.files[0]; if(!f){cb(null);return} readCsv(f).then(cb).catch(e=>msg(e.message));}
 function msg(t){document.getElementById('messages').innerHTML = `<div class="warning">${t}</div>`}
 function clearMsg(){document.getElementById('messages').innerHTML=''}
@@ -296,7 +387,7 @@ function populateOpponents(){
   if(!state.game) return;
   const ops=[...new Set(state.game.map(r=>val(r,'opponent')).filter(Boolean))].sort();
   ops.forEach(o=>{let opt=document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt)});
-  inferTeam();
+  inferTeam(); applyAutomaticBranding();
 }
 function normalizeName(full){
   full=String(full||'').replace(/\s+/g,' ').trim(); if(!full) return '';
@@ -407,6 +498,47 @@ function tableHtml(rows, cols, cls=''){
   if(!rows || !rows.length) return '<div class="pdf-note">No data.</div>';
   return `<table class="pdf-table ${cls}"><thead><tr>`+cols.map(c=>`<th>${c.label}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c.get(r)}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
 }
+
+function totalsFromTeam(){
+  const rows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy'));
+  const totalRow=rows.find(r=>val(r,'SplitBy').toUpperCase()==='TOTAL')||rows.find(r=>!val(r,'Count'))||rows[0]||{};
+  const total=num(val(totalRow,'SBA')) || (state.sbEvents||[]).length;
+  const byCount={}; rows.forEach(r=>{if(val(r,'Count')) byCount[val(r,'Count')]=num(val(r,'SBA'))});
+  const s=c=>byCount[c]||0;
+  const first=s('0-0'), second=s('0-1')+s('1-0'), third=s('0-2')+s('1-1')+s('2-0');
+  const noStrikes=s('0-0')+s('1-0')+s('2-0')+s('3-0');
+  return {total,first,second,third,noStrikes,first3:first+second+third};
+}
+function coachNotesText(){
+  const t=totalsFromTeam();
+  const topSba=topSbaRows(1)[0];
+  const topBunt=topBuntRows(1)[0];
+  const notes=[];
+  if(t.total){notes.push(`• ${Math.round(t.first3/t.total*100)}% of SBA are in the first 3 pitches`);notes.push(`• ${t.noStrikes}/${t.total} SBA come with 0 strikes`);}
+  if(topSba){const name=val(topSba,'abbrevName')||normalizeName(val(topSba,'playerFullName')); const sba=num(val(topSba,'SBA')); const first=num(val(topSba,'SBA0-0')); notes.push(`• Top running threat: ${name} (${sba} SBA${first?`, ${first} on 0-0`:''})`);}
+  if(topBunt){const name=val(topBunt,'abbrevName')||normalizeName(val(topBunt,'playerFullName')); notes.push(`• Top bunt threat: ${name} (${calcBunt(topBunt)} attempts)`);}
+  const vuln=batteryVulnerabilityRows(1)[0];
+  if(vuln) notes.push(`• Most targeted battery: ${vuln.Battery} (${vuln.SBA} SBA, ${vuln['SB%']})`);
+  return notes.length?notes.join('\n'):'Upload/generate data to create notes.';
+}
+function uniqueGamesSorted(){
+  const seen={}; (state.game||[]).forEach(r=>{const gid=val(r,'gameId'); if(gid&&!seen[gid]) seen[gid]={gid,date:val(r,'gameDate')||val(r,'date'),opp:val(r,'opponent')}});
+  return Object.values(seen).sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+function trendsForLast(n){
+  const games=uniqueGamesSorted().slice(0,n); const ids=new Set(games.map(g=>g.gid));
+  const sba=(state.sbEvents||[]).filter(r=>ids.has(r.gameId)); const bunts=(state.buntEvents||[]).filter(r=>ids.has(r.gameId));
+  const sb=sba.filter(r=>r.Result==='SB').length, cs=sba.filter(r=>r.Result==='CS').length, succ=bunts.filter(r=>r.Result==='Successful').length;
+  return {games:games.length,sba:sba.length,sb,cs,bunt:bunts.length,succ};
+}
+function recentTrendsText(){
+  const a=trendsForLast(5), b=trendsForLast(10);
+  return `Last ${a.games||5} games\n• SBA: ${a.sb}/${a.sba}${a.sba?` (${Math.round(a.sb/a.sba*100)}%)`:''}\n• Bunts: ${a.succ}/${a.bunt}\n\nLast ${b.games||10} games\n• SBA: ${b.sb}/${b.sba}${b.sba?` (${Math.round(b.sb/b.sba*100)}%)`:''}\n• Bunts: ${b.succ}/${b.bunt}`;
+}
+function batteryVulnerabilityRows(limit=8){
+  const m={}; (state.sbEvents||[]).forEach(r=>{const p=r.Pitcher||'Unknown P'; const c=r.Catcher||'Unknown C'; const k=p+' / '+c; if(!m[k]) m[k]={Battery:k,SBA:0,SB:0,CS:0}; m[k].SBA++; if(r.Result==='SB') m[k].SB++; if(r.Result==='CS') m[k].CS++;});
+  return Object.values(m).sort((a,b)=>b.SBA-a.SBA || b.SB-a.SB).slice(0,limit).map(x=>({...x,'SB%':pctText(x.SB,x.SBA)}));
+}
 function buildPrintSummary(team,opp,cards){
   const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const teamRows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy')).map(r=>{let o={...r}; if(!val(o,'Count')) o.Count='TOTAL'; return o});
@@ -422,6 +554,10 @@ function buildPrintSummary(team,opp,cards){
     const b=num(val(r,'Bunt#')); const pct=totalBunt?` (${Math.round(b/totalBunt*1000)/10}%)`:'';
     return `${i+1}. ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}     ${b} / ${totalBunt}${pct}`;
   }).join('\n');
+  const pdfCoachNotes=coachNotesText();
+  const pdfRecentTrends=recentTrendsText();
+  const batteryRows=batteryVulnerabilityRows(5);
+  const batteryCols=[{label:'Battery',get:r=>r.Battery},{label:'SBA',get:r=>r.SBA},{label:'SB',get:r=>r.SB},{label:'CS',get:r=>r.CS},{label:'SB%',get:r=>r['SB%']}];
   const teamCols=[
     {label:'Count',get:r=>val(r,'Count')},{label:'G',get:r=>val(r,'G')},{label:'SBA',get:r=>val(r,'SBA')},{label:'SB',get:r=>val(r,'SB')},{label:'CS',get:r=>val(r,'CS')},{label:'SB%',get:r=>val(r,'SB%')},
     {label:'SBA2',get:r=>val(r,'SBA2')},{label:'SB2',get:r=>val(r,'SB2')},{label:'CS2',get:r=>val(r,'CS2')},{label:'SB2%',get:r=>val(r,'SB2%')},{label:'SBA3',get:r=>val(r,'SBA3')},{label:'SB3',get:r=>val(r,'SB3')},{label:'CS3',get:r=>val(r,'CS3')},{label:'SB3%',get:r=>val(r,'SB3%')}
@@ -436,7 +572,12 @@ function buildPrintSummary(team,opp,cards){
   document.getElementById('printSummary').innerHTML = `
     <div class="print-page">
       <div class="topbar">
-        <div class="brand"><div class="logo-pair">${logoHtml(document.getElementById('homeLogoSelect')?.value||'leones')}<span class="vs-dot">VS</span>${logoHtml(document.getElementById('oppLogoSelect')?.value||'aguilas')}</div><div><h1>${reportTitleValue(team,opp)}</h1><div class="pdf-meta">Generated ${today} • Recent Games • Overall SBA • Player SBA • Bunt Attempts</div></div></div>
+        <div class="brand"><div class="logo-pair">${logoHtml(document.getElementById('homeLogoSelect')?.value||'escogido')}<span class="vs-dot">VS</span>${logoHtml(currentOppLogoKey())}</div><div><h1>${reportTitleValue(team,opp)}</h1><div class="pdf-meta">Generated ${today} • Recent Games • Overall SBA • Player SBA • Bunt Attempts</div></div></div>
+      </div>
+      <div class="insight-row">
+        <div class="pdf-mini-card"><div class="pdf-mini-title">Coach Notes</div><div class="pdf-mini-lines">${pdfCoachNotes}</div></div>
+        <div class="pdf-mini-card"><div class="pdf-mini-title">Recent Trends</div><div class="pdf-mini-lines">${pdfRecentTrends}</div></div>
+        <div class="pdf-mini-card"><div class="pdf-mini-title">Pitcher / Catcher Vulnerability</div>${tableHtml(batteryRows,batteryCols,'compact')}</div>
       </div>
       <div class="pdf-section tight one-recent pdf-block-recent">
         <div class="pdf-title">I. Recent Games</div>
@@ -473,9 +614,12 @@ function buildPrintSummary(team,opp,cards){
 }
 
 function generate(){clearMsg(); if(!state.game){msg('Upload the Pregame CSV first.'); return;} eventTables(); const team=document.getElementById('reportTeam').value || 'TEAM'; const opp=document.getElementById('opponentSelect').value; const n=parseInt(document.getElementById('h2hN').value||2);
-  document.getElementById('report').classList.remove('hidden'); if(!document.getElementById('customTitle').value){document.getElementById('customTitle').value=`Pregame Report – ${team} vs ${opp}`;} document.getElementById('pageTitle').textContent=reportTitleValue(team,opp); updateLogos(); document.getElementById('recentTitle').textContent=`vs ${opp}`; document.getElementById('overallTitle').textContent=`${team} - Overall SBA`; document.getElementById('playerTitle').textContent=`${team} - SBA By Player`; document.getElementById('buntTitle').textContent=`${team} - Bunt Attempts`;
+  document.getElementById('report').classList.remove('hidden'); if(!document.getElementById('customTitle').value){document.getElementById('customTitle').value=`Pregame Report – ${team} vs ${opp}`;} document.getElementById('pageTitle').textContent=reportTitleValue(team,opp); syncOpponentBranding(); document.getElementById('recentTitle').textContent=`vs ${opp}`; document.getElementById('overallTitle').textContent=`${team} - Overall SBA`; document.getElementById('playerTitle').textContent=`${team} - SBA By Player`; document.getElementById('buntTitle').textContent=`${team} - Bunt Attempts`;
   const cards=[]; getGames(opp,n).forEach(g=>cards.push(gameSummary(g.gid,`Partido - ${dateLabel(g.date)} vs ${g.opp}`))); const lg=getLastGame(); if(lg) cards.push(gameSummary(lg.gid,`Last Game - ${dateLabel(lg.date)} vs ${lg.opp}`));
   document.getElementById('gameCards').innerHTML=cards.map(c=>`<div class="game-card"><h3>${c.split('\n')[0]}</h3><div class="lines">${c.split('\n').slice(1).join('\n')}</div></div>`).join('');
+  document.getElementById('coachNotes').textContent=coachNotesText();
+  document.getElementById('recentTrends').textContent=recentTrendsText();
+  document.getElementById('batteryVulnerabilityTable').innerHTML=makeTable(batteryVulnerabilityRows(10), null, ['Battery','SBA','SB','CS','SB%']);
   document.getElementById('overallText').textContent=state.teamSba?teamQuick():'Upload Team SBA by Count CSV.';
   document.getElementById('playerText').textContent=state.playerSba?topPlayers():'Upload Player SBA CSV.';
   document.getElementById('buntText').textContent=state.bunt?buntSummary():'Upload Bunt + SBA CSV.';
@@ -491,8 +635,10 @@ function generate(){clearMsg(); if(!state.game){msg('Upload the Pregame CSV firs
 }
 
 document.getElementById('customTitle').addEventListener('input',()=>{document.getElementById('pageTitle').textContent=document.getElementById('customTitle').value || 'Pregame Report Generator';});
+document.getElementById('opponentSelect').addEventListener('change',applyAutomaticBranding);
 document.getElementById('homeLogoSelect').addEventListener('change',updateLogos);
 document.getElementById('oppLogoSelect').addEventListener('change',updateLogos);
+document.getElementById('opponentSelect').addEventListener('change',()=>{ if(!document.getElementById('customTitle').value){ const team=document.getElementById('reportTeam').value||'ESC'; const opp=document.getElementById('opponentSelect').value||'OPP'; document.getElementById('customTitle').placeholder=`Pregame Report – ${team} vs ${opp}`; } syncOpponentBranding(); });
 updateLogos();
 
 function showTab(name){
