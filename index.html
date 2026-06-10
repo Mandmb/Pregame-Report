@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pregame Report Generator</title>
+<style>
+:root{--blue:#0b3d91;--line:#e5e7eb;--soft:#f8fafc;--text:#1f2937;--muted:#6b7280;--card:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#f4f6fb;color:var(--text)}
+.wrap{max-width:1240px;margin:0 auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:14px}.logo-pair{display:flex;align-items:center;gap:8px}.logo{width:54px;height:54px;border-radius:14px;background:#fecaca;display:grid;place-items:center;font-weight:900;color:#991b1b;font-size:26px;box-shadow:inset 0 0 0 2px #ef4444;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}.vs-dot{font-size:11px;font-weight:900;color:#64748b}h1{font-size:34px;line-height:1.1;margin:0;color:#0f172a}.actions{display:flex;gap:10px;flex-wrap:wrap}button,.btn{border:1px solid #2563eb;background:white;color:#1d4ed8;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none}button.primary{background:#1d4ed8;color:white}.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(15,23,42,.04);padding:16px;margin-bottom:16px}.controls{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px}.control label{font-size:12px;font-weight:800;text-transform:uppercase;color:#64748b;display:block;margin-bottom:6px}.control input,.control select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white}.section-title{font-size:20px;font-weight:900;color:var(--blue);display:flex;align-items:center;gap:8px;margin:0 0 14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid2{display:grid;grid-template-columns:1fr 1.7fr;gap:22px}.game-card,.summary-card{border:1px solid #dbe3ef;border-radius:8px;padding:14px;background:white;min-height:185px}.summary-card{background:linear-gradient(135deg,#f8fbff,#eff8ff)}.game-card h3{margin:0 0 10px;font-size:15px;color:var(--blue)}.lines{white-space:pre-wrap;font-size:14px;line-height:1.65}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:white}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:9px 10px;text-align:left;white-space:nowrap}th{background:#f8fafc;color:#4b5563;font-weight:800}tr:last-child td{border-bottom:0}.foot{font-size:12px;color:#64748b}.hidden{display:none!important}.email{width:100%;min-height:360px;border:1px solid var(--line);border-radius:8px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#1e40af;font-weight:800;font-size:12px}.small-note{color:#64748b;font-size:13px;line-height:1.5}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px;border-radius:8px;margin-top:10px}@media(max-width:950px){.controls,.grid3,.grid2{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+
+
+/* Two-page landscape PDF export */
+.print-only{display:none}
+@page{size:letter landscape;margin:.18in}
+@media print{
+  html,body{width:11in;height:8.5in;background:white!important;overflow:visible}
+  body{font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#111827}
+  .screen-topbar,.controls-panel,.actions,.raw-panel,.foot,#report{display:none!important}
+  .print-only{display:block!important}
+  .wrap{max-width:none;width:10.66in;padding:0;margin:0 auto}
+  .print-page{height:8.12in;page-break-after:always;break-after:page;overflow:hidden;display:flex;flex-direction:column;gap:9px;background:white}
+  .print-page:last-child{page-break-after:auto;break-after:auto}
+  .topbar{margin:0 0 3px;gap:10px;border-bottom:4px solid #082e73;padding-bottom:7px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:43px;height:43px;border-radius:9px;font-size:18px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}
+  h1{font-size:25px;line-height:1;margin:0;color:#0f172a;font-weight:900}
+  .pdf-meta{font-size:9px;color:#475569;margin-top:5px;letter-spacing:.01em}
+  .pdf-section{border:1.4px solid #cbd5e1;border-radius:6px;padding:9px 10px;background:white;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden}
+  .pdf-section.flex{flex:1;min-height:0;overflow:hidden}
+  .pdf-title{display:inline-block;background:#092f73;color:white;font-size:14px;font-weight:900;margin:-2px 0 7px -1px;text-transform:uppercase;letter-spacing:.015em;padding:4px 10px;border-radius:4px;line-height:1}
+  .pdf-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;min-height:1.74in}
+  .pdf-grid-2{display:grid;grid-template-columns:.72fr 1.68fr;gap:14px;min-height:0;flex:1}
+  .pdf-grid-2.equal{grid-template-columns:1fr 1fr;flex:0 0 auto;min-height:1.2in}
+  .pdf-card{border:1.2px solid #cbd5e1;border-radius:6px;padding:8px 11px;background:white;min-height:1.57in;overflow:hidden}
+  .pdf-card h3{font-size:11px;margin:0 0 7px;color:#092f73;line-height:1.1;text-transform:uppercase;font-weight:900}
+  .pdf-lines{font-size:9.4px;line-height:1.34;white-space:pre-wrap;color:#111827}
+  .pdf-bullets{font-size:11.2px;line-height:1.58;white-space:pre-wrap;color:#111827;padding-top:2px}
+  .pdf-table{width:100%;border-collapse:collapse;font-size:8.4px;line-height:1.05;table-layout:auto;color:#111827}
+  .pdf-table th,.pdf-table td{border:1px solid #cbd5e1;padding:2.45px 3.2px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+  .pdf-table th{background:#f8fafc!important;color:#111827;font-weight:900}
+  .pdf-table.compact{font-size:8.35px;line-height:1.05}
+  .pdf-table.compact th,.pdf-table.compact td{padding:2.1px 3px;max-width:95px}
+  .pdf-table.players{font-size:8.15px;line-height:1.02}
+  .pdf-table.players th,.pdf-table.players td{padding:1.95px 2.6px;max-width:92px}
+  .pdf-table.bunts{font-size:9.2px;line-height:1.12}
+  .pdf-table.bunts th,.pdf-table.bunts td{padding:2.85px 3.2px;max-width:120px}
+  .pdf-note{font-size:8px;color:#64748b;margin-top:2px;line-height:1.2}
+}
+
+
+/* Beautiful one-page landscape PDF export */
+@page{size:letter landscape;margin:.13in}
+@media print{
+  html,body{width:11in;height:8.5in;background:white!important;overflow:hidden!important}
+  body{font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#0f172a}
+  .screen-topbar,.controls-panel,.actions,.raw-panel,.foot,#report{display:none!important}
+  .print-only{display:block!important}
+  .wrap{max-width:none;width:10.74in;padding:0;margin:0 auto}
+  .print-page{height:8.24in;page-break-after:auto!important;break-after:auto!important;overflow:hidden;display:flex;flex-direction:column;gap:6px;background:white}
+  .topbar{margin:0 0 2px;gap:10px;border-bottom:4px solid #082e73;padding-bottom:5px;break-inside:avoid;display:flex;align-items:center;justify-content:flex-start}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo-pair{display:flex;align-items:center;gap:6px}.vs-dot{font-size:8px;font-weight:900;color:#64748b}.logo{width:40px;height:40px;border-radius:8px;font-size:17px;background:#fecaca;color:#991b1b;box-shadow:inset 0 0 0 1.6px #ef4444;font-weight:900;display:grid;place-items:center;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}
+  h1{font-size:23px;line-height:1;margin:0;color:#0f172a;font-weight:900}
+  .pdf-meta{font-size:8.3px;color:#475569;margin-top:4px;letter-spacing:.01em}
+  .pdf-section{border:1.2px solid #94a3b8;border-radius:5px;padding:7px 8px;background:white;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden}
+  .pdf-section.tight{padding:5px 7px}
+  .pdf-title{display:inline-block;background:#092f73;color:white;font-size:10.8px;font-weight:900;margin:-1px 0 5px -1px;text-transform:uppercase;letter-spacing:.015em;padding:3px 9px;border-radius:3px;line-height:1}
+  .one-recent{flex:0 0 1.47in}
+  .pdf-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;min-height:0}
+  .pdf-card{border:1px solid #94a3b8;border-radius:5px;padding:6px 9px;background:white;height:1.18in;overflow:hidden}
+  .pdf-card h3{font-size:9.1px;margin:0 0 4px;color:#092f73;line-height:1.1;text-transform:uppercase;font-weight:900}
+  .pdf-lines{font-size:7.45px;line-height:1.2;white-space:pre-wrap;color:#111827}
+  .top-row{display:grid;grid-template-columns:.92fr 2.12fr;gap:9px;flex:0 0 3.03in;min-height:0}
+  .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:1;min-height:0;overflow:hidden}
+  .subgrid{display:grid;grid-template-columns:.75fr 1.65fr;gap:7px;height:100%;min-height:0}
+  .subgrid-bunt{display:grid;grid-template-columns:.72fr 1.45fr;gap:7px;height:100%;min-height:0}
+  .summary-mini{font-size:8.5px;line-height:1.36;white-space:pre-wrap;color:#111827;padding:2px 3px}
+  .pdf-table{width:100%;border-collapse:collapse;border:1px solid #94a3b8!important;table-layout:auto;color:#111827;background:white}
+  .pdf-table th,.pdf-table td{border:1px solid #c0cad8!important;padding:1.55px 2.4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
+  .pdf-table th{background:#eaf1fb!important;color:#0f172a;font-weight:900}
+  .pdf-table tbody tr:nth-child(even) td{background:#f3f6fb!important}
+  .pdf-table tbody tr:nth-child(odd) td{background:#ffffff!important}
+  .pdf-table tbody tr:last-child td{border-bottom:1px solid #94a3b8!important}
+  .pdf-table.compact{font-size:6.75px;line-height:1.0}
+  .pdf-table.compact th,.pdf-table.compact td{padding:1.08px 1.7px;max-width:72px}
+  .pdf-table.players{font-size:5.65px;line-height:.98}
+  .pdf-table.players th,.pdf-table.players td{padding:.95px 1.15px;max-width:52px}
+  .pdf-table.bunts{font-size:6.85px;line-height:1.0}
+  .pdf-table.bunts th,.pdf-table.bunts td{padding:1.2px 1.7px;max-width:72px}
+  .leader-list{font-size:7.4px;line-height:1.45;color:#111827;white-space:pre-wrap}
+  .print-foot{border-top:1.5px solid #0b3d91;font-size:7px;color:#475569;padding:3px 8px;margin-top:1px}
+}
+
+/* Final single-page print guard: prevents browser from creating a blank page */
+@media print{
+  @page{size:letter landscape;margin:0!important}
+  html,body{width:11in!important;height:8.5in!important;margin:0!important;padding:0!important;overflow:hidden!important;background:white!important}
+  .wrap{box-sizing:border-box!important;width:11in!important;height:8.5in!important;max-width:none!important;margin:0!important;padding:.08in .12in!important;overflow:hidden!important}
+  #printSummary{display:block!important;width:10.76in!important;height:8.34in!important;margin:0!important;padding:0!important;overflow:hidden!important}
+  .print-only{display:block!important}
+  .print-page{width:10.76in!important;height:8.34in!important;max-height:8.34in!important;margin:0!important;padding:0!important;overflow:hidden!important;page-break-before:auto!important;page-break-after:avoid!important;break-before:auto!important;break-after:avoid!important}
+  .print-page::after{content:none!important}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar screen-topbar">
+    <div class="brand"><div class="logo-pair"><div class="logo" id="homeLogoBox">LE</div><span class="vs-dot">VS</span><div class="logo" id="oppLogoBox">OPP</div></div><h1 id="pageTitle">Pregame Report Generator</h1></div>
+    <div class="actions"><button onclick="copyReport()">📋 Copy Report</button><button onclick="window.print()">⬇ Export PDF</button></div>
+  </div>
+
+  <div class="panel controls-panel">
+    <div class="section-title">📥 Import CSVs</div>
+    <div class="controls">
+      <div class="control"><label>Pregame / Game CSV</label><input id="gameFile" type="file" accept=".csv"></div>
+      <div class="control"><label>Team SBA by Count CSV</label><input id="teamSbaFile" type="file" accept=".csv"></div>
+      <div class="control"><label>Player SBA CSV</label><input id="playerSbaFile" type="file" accept=".csv"></div>
+      <div class="control"><label>Bunt + SBA CSV</label><input id="buntFile" type="file" accept=".csv"></div>
+      <div class="control"><label>Report Team</label><input id="reportTeam" placeholder="AGU"></div>
+      <div class="control"><label>Opponent</label><select id="opponentSelect"></select></div>
+      <div class="control"><label>Header Title</label><input id="customTitle" placeholder="Pregame Report – AGU vs ESC"></div>
+      <div class="control"><label>Home Logo</label><select id="homeLogoSelect"><option value="leones">Leones del Escogido</option></select></div>
+      <div class="control"><label>Opponent Logo</label><select id="oppLogoSelect"><option value="aguilas">Aguilas Cibaeñas</option><option value="licey">Tigres del Licey</option><option value="toros">Toros del Este</option><option value="estrellas">Estrellas Orientales</option><option value="gigantes">Gigantes del Cibao</option></select></div>
+      <div class="control"><label>H2H Games</label><input id="h2hN" type="number" min="1" max="5" value="2"></div>
+      <div class="control"><label>&nbsp;</label><button class="primary" onclick="generate()">Generate Report</button></div>
+    </div>
+    <div class="small-note">Upload the same four CSVs you used before. You can edit the header title and choose the opponent logo before exporting. The site will detect SBA from <b>BaseStealAtt</b> when present, or from <b>atbatDesc</b>, and will parse bunt results from <b>pitchResult</b>.</div>
+    <div id="messages"></div>
+  </div>
+
+  <div id="report" class="hidden">
+    <div class="panel">
+      <div class="section-title">🏆 RECENT GAMES <span id="recentTitle"></span></div>
+      <div class="grid3" id="gameCards"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">📊 <span id="overallTitle"></span></div>
+      <div class="grid2">
+        <div class="summary-card"><div class="lines" id="overallText"></div></div>
+        <div><b>Team SBA by Count</b><div class="table-wrap" id="teamSbaTable"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">👥 <span id="playerTitle"></span></div>
+      <div class="grid2">
+        <div class="summary-card"><div class="lines" id="playerText"></div></div>
+        <div><b>Player SBA</b><div class="table-wrap" id="playerSbaTable"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title">🖊️ <span id="buntTitle"></span></div>
+      <div class="grid2">
+        <div class="summary-card"><div class="lines" id="buntText"></div></div>
+        <div><b>Bunt + SBA</b><div class="table-wrap" id="buntTable"></div></div>
+      </div>
+    </div>
+
+    <div class="panel raw-panel">
+      <div class="section-title">🔎 Detected Events</div>
+      <div class="grid2">
+        <div><b>Stolen base attempts</b><div class="table-wrap" id="sbaEventsTable"></div></div>
+        <div><b>Bunt attempts</b><div class="table-wrap" id="buntEventsTable"></div></div>
+      </div>
+    </div>
+
+    <div class="panel raw-panel">
+      <div class="section-title">📧 Copy-ready Email Text</div>
+      <textarea id="emailText" class="email"></textarea>
+    </div>
+
+    <div class="panel foot">SBA = Stolen Base Attempts &nbsp;&nbsp;&nbsp; SB = Stolen Bases &nbsp;&nbsp;&nbsp; CS = Caught Stealing &nbsp;&nbsp;&nbsp; SB% = Stolen Base Percentage</div>
+  </div>
+
+  <div id="printSummary" class="print-only"></div>
+</div>
+<script>
+
+function parseCSVText(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], nx=text[i+1];
+    if(q){
+      if(ch==='"' && nx==='"'){ cell+='"'; i++; }
+      else if(ch==='"'){ q=false; }
+      else cell+=ch;
+    }else{
+      if(ch==='"') q=true;
+      else if(ch===','){ row.push(cell); cell=''; }
+      else if(ch==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+      else if(ch==='\r'){}
+      else cell+=ch;
+    }
+  }
+  if(cell!=='' || row.length){ row.push(cell); rows.push(row); }
+  if(!rows.length) return [];
+  const headers=rows[0].map(h=>String(h||'').trim());
+  return rows.slice(1).filter(r=>r.some(c=>String(c||'').trim()!=='')).map(r=>{
+    const o={}; headers.forEach((h,i)=>o[h]=r[i]??''); return o;
+  });
+}
+function readCsv(file){return new Promise((resolve,reject)=>{const reader=new FileReader(); reader.onload=()=>resolve(parseCSVText(String(reader.result||''))); reader.onerror=()=>reject(reader.error||new Error('Could not read file')); reader.readAsText(file);});}
+
+const state = {game:null, teamSba:null, playerSba:null, bunt:null, sbEvents:[], buntEvents:[]};
+const dropColsTeam = new Set(['SplitBy','teamId','Count_Sort','entityKey','CSH','splitByName','SBOpp']);
+const dropColsPlayer = new Set(['Rank','playerId','abbrevName','player','playerFirstName','currentTeamName','currentTeamAbbrevName','currentTeamId','currentTeamLocation','currentTeamLevel','currentOrg','newestTeamName','newestTeamAbbrevName','newestTeamId','newestTeamLocation','newestTeamLevel','newestOrg','batsHand','throwsHand']);
+const countOrder = ['0-0','0-1','0-2','1-0','1-1','1-2','2-0','2-1','2-2','3-0','3-1','3-2'];
+function val(r,c){return (r && r[c]!==undefined && r[c]!==null) ? String(r[c]).trim() : ''}
+function num(x){let n=parseFloat(String(x ?? '').replace('%','')); return Number.isFinite(n)?n:0}
+
+function pctText(n,d){n=num(n); d=num(d); return d ? (Math.round((n/d*100)*10)/10).toFixed(1)+'%' : ''}
+function calcCS(r){const existing=val(r,'CS'); return existing!=='' ? existing : String(Math.max(0,num(val(r,'SBA'))-num(val(r,'SB'))));}
+function colVal(r,c){return val(r,c) || val(r,c.replace('%','')) || ''}
+function calcBunt(r){return num(val(r,'Bunt#')||val(r,'Bunt'));}
+function calcSucc(r){return num(val(r,'Bunt Hit')||val(r,'BuntHit')||val(r,'Succ'));}
+function calcUnsucc(r){const existing=val(r,'Unsucc')||val(r,'BuntOut')||val(r,'Bunt Out'); return existing!=='' ? existing : String(Math.max(0,calcBunt(r)-calcSucc(r)));}
+function calcSuccPct(r){const existing=val(r,'Succ%')||val(r,'Bunt%')||val(r,'BuntHit%'); return existing!=='' ? existing : pctText(calcSucc(r),calcBunt(r));}
+function playerDisplayRows(rows){return (rows||[]).map(r=>({
+  'Player': val(r,'abbrevName')||normalizeName(val(r,'playerFullName')),
+  'Pos': val(r,'pos'), 'G': val(r,'G'), 'SBA': val(r,'SBA'), 'SB': val(r,'SB'), 'CS': calcCS(r), 'SB%': val(r,'SB%'),
+  'SBA0-0': val(r,'SBA0-0'), 'SBA0-1': val(r,'SBA0-1'), 'SBA0-2': val(r,'SBA0-2'), 'SBA1-0': val(r,'SBA1-0'), 'SBA1-1': val(r,'SBA1-1'), 'SBA1-2': val(r,'SBA1-2'), 'SBA2-0': val(r,'SBA2-0'), 'SBA2-1': val(r,'SBA2-1'), 'SBA2-2': val(r,'SBA2-2'), 'SBA3-0': val(r,'SBA3-0'), 'SBA3-1': val(r,'SBA3-1'), 'SBA3-2': val(r,'SBA3-2')
+}));}
+function buntDisplayRows(rows){return (rows||[]).map(r=>({
+  'Player': val(r,'abbrevName')||normalizeName(val(r,'playerFullName')),
+  'Pos': val(r,'pos'), 'G': val(r,'G'), 'Bunt': calcBunt(r), 'Succ': calcSucc(r), 'Unsucc': calcUnsucc(r), 'Succ%': calcSuccPct(r), 'SB': val(r,'SB'), 'SBA': val(r,'SBA')
+}));}
+function parseDate(s){let d=new Date(s); return isNaN(d)?null:d}
+function dateLabel(s){let d=parseDate(s); if(!d) return s||''; return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}).replace(',', ',')}
+function initials(team){return (team||'PG').slice(0,2).toUpperCase()}
+function reportTitleValue(team,opp){return (document.getElementById('customTitle')?.value || `Pregame Report – ${team} vs ${opp}`).trim()}
+const logoPresets={
+  leones:{abbr:'LE', name:'Leones del Escogido', bg:'#fee2e2', fg:'#991b1b', ring:'#ef4444'},
+  aguilas:{abbr:'AGU', name:'Aguilas Cibaeñas', bg:'#fef3c7', fg:'#92400e', ring:'#f59e0b'},
+  licey:{abbr:'LIC', name:'Tigres del Licey', bg:'#dbeafe', fg:'#1e3a8a', ring:'#2563eb'},
+  toros:{abbr:'TOR', name:'Toros del Este', bg:'#fee2e2', fg:'#7f1d1d', ring:'#dc2626'},
+  estrellas:{abbr:'EO', name:'Estrellas Orientales', bg:'#dcfce7', fg:'#14532d', ring:'#16a34a'},
+  gigantes:{abbr:'GC', name:'Gigantes del Cibao', bg:'#fed7aa', fg:'#7c2d12', ring:'#ea580c'}
+};
+function logoHtml(key){const l=logoPresets[key]||logoPresets.leones; return `<div class="logo" style="background:${l.bg};color:${l.fg};box-shadow:inset 0 0 0 1.6px ${l.ring}" title="${l.name}">${l.abbr}</div>`}
+function renderLogoBox(id,key){const l=logoPresets[key]||logoPresets.leones; const el=document.getElementById(id); if(!el) return; el.textContent=l.abbr; el.title=l.name; el.style.background=l.bg; el.style.color=l.fg; el.style.boxShadow=`inset 0 0 0 2px ${l.ring}`;}
+function updateLogos(){renderLogoBox('homeLogoBox',document.getElementById('homeLogoSelect')?.value||'leones');renderLogoBox('oppLogoBox',document.getElementById('oppLogoSelect')?.value||'aguilas');}
+function parseCsvFile(input, cb){const f=input.files[0]; if(!f){cb(null);return} readCsv(f).then(cb).catch(e=>msg(e.message));}
+function msg(t){document.getElementById('messages').innerHTML = `<div class="warning">${t}</div>`}
+function clearMsg(){document.getElementById('messages').innerHTML=''}
+['gameFile','teamSbaFile','playerSbaFile','buntFile'].forEach(id=>document.getElementById(id).addEventListener('change',loadFiles));
+function loadFiles(){
+  parseCsvFile(document.getElementById('gameFile'), data=>{state.game=data; populateOpponents();});
+  parseCsvFile(document.getElementById('teamSbaFile'), data=>state.teamSba=data);
+  parseCsvFile(document.getElementById('playerSbaFile'), data=>{state.playerSba=data; inferTeam();});
+  parseCsvFile(document.getElementById('buntFile'), data=>{state.bunt=data; inferTeam();});
+}
+function inferTeam(){
+  const inp=document.getElementById('reportTeam'); if(inp.value) return;
+  const src=(state.playerSba&&state.playerSba[0])||(state.bunt&&state.bunt[0])||(state.game&&state.game[0]);
+  const team=val(src,'newestTeamAbbrevName')||val(src,'team')||val(src,'battingTeam'); if(team) inp.value=team;
+}
+function populateOpponents(){
+  const sel=document.getElementById('opponentSelect'); sel.innerHTML='';
+  if(!state.game) return;
+  const ops=[...new Set(state.game.map(r=>val(r,'opponent')).filter(Boolean))].sort();
+  ops.forEach(o=>{let opt=document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt)});
+  inferTeam();
+}
+function normalizeName(full){
+  full=String(full||'').replace(/\s+/g,' ').trim(); if(!full) return '';
+  const particles=new Set(['de','del','de la','da','dos','van','von']);
+  let parts=full.split(' '); if(parts.length===1) return full;
+  let last=parts[parts.length-1];
+  if(parts.length>=3 && ['De','Del','La'].includes(parts[parts.length-2])) last=parts.slice(-2).join(' ');
+  let first=parts[0];
+  if(first.includes('.')) return `${first} ${last}`;
+  return `${first.charAt(0)}. ${last}`;
+}
+function parseStealsFromDesc(desc){
+  const out=[]; const t=String(desc||'').replace(/\s+/g,' ').trim(); if(!t) return out;
+  const name='([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ.\'-]+(?:\\s+[A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ.\'-]+){0,3})';
+  const stealRe=new RegExp('(?:^|[.;:]\\s+|\\sand\\s+)'+name+'\\s+steals(?:\\s*\\(\\d+\\))?\\s*(2nd|3rd|home)?','gi');
+  const csRe=new RegExp('(?:^|[.;:]\\s+|\\sand\\s+)'+name+'\\s+caught stealing\\s*(2nd|3rd|home)?','gi');
+  let m;
+  while((m=stealRe.exec(t))!==null){out.push({runner:normalizeName(m[1]), result:'SB', base:m[2]||''});}
+  while((m=csRe.exec(t))!==null){out.push({runner:normalizeName(m[1]), result:'CS', base:m[2]||''});}
+  // If the sentence starts directly with the runner, the boundary regex above catches it. This fallback handles odd exports.
+  if(!out.length){
+    const simpleSteal=t.match(new RegExp(name+'\\s+steals','i'));
+    const simpleCS=t.match(new RegExp(name+'\\s+caught stealing','i'));
+    if(simpleSteal) out.push({runner:normalizeName(simpleSteal[1]), result:'SB', base:''});
+    if(simpleCS) out.push({runner:normalizeName(simpleCS[1]), result:'CS', base:''});
+  }
+  return out;
+}
+function classifyBunt(pr){
+  const t=String(pr||'').toLowerCase(); if(!t.includes('bunt')) return null;
+  if(t.includes('foul bunt')||t.includes('miss bunt')||t.includes('missed bunt')) return null;
+  if(['single','double','triple','home run','homerun'].some(x=>t.includes(x))) return 'Successful';
+  if(['ground out','groundout','pop out','popout','fly out','flyout','line out','lineout'].some(x=>t.includes(x))) return 'Unsuccessful';
+  return 'Attempt';
+}
+function stealAttemptValue(r){return val(r,'BaseStealAtt')||val(r,'baseStealAtt')||val(r,'baseStealAttempt')||val(r,'Base Steal Att')}
+function eventTables(){
+  const rows=(state.game||[]).slice().sort((a,b)=>(val(a,'gameId')+String(num(val(a,'pitchNumInGame'))).padStart(5,'0')).localeCompare(val(b,'gameId')+String(num(val(b,'pitchNumInGame'))).padStart(5,'0')));
+  const sb=[], bunt=[];
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i], next=rows[i+1]||{};
+    const team=val(r,'battingTeam')||val(r,'team')||document.getElementById('reportTeam').value;
+    const baseAtt=stealAttemptValue(r);
+    let steals=[];
+    if(baseAtt){
+      const parsed=parseStealsFromDesc(val(r,'atbatDesc'));
+      const same=val(r,'outs')!=='' && val(next,'outs')!=='' && val(r,'outs')===val(next,'outs') && val(r,'gameId')===val(next,'gameId');
+      steals = parsed.length ? parsed : [{runner:val(r,'batterAbbrevName')||'Runner', result:same?'SB':'CS', base:baseAtt}];
+    } else {
+      steals = parseStealsFromDesc(val(r,'atbatDesc'));
+    }
+    steals.forEach(s=>sb.push({'Game Date':(val(r,'gameDate')||val(r,'date')).slice(0,10),'Team':team,'Opponent':val(r,'opponent'),'Inning':val(r,'inn'),'Count':val(r,'count'),'Pitch #':val(r,'pitchNumInAB'),'Runner':s.runner,'Base':s.base,'Pitcher':val(r,'pitcherAbbrevName'),'Catcher':val(r,'catcherAbbrevName'),'Result':s.result,'gameId':val(r,'gameId'),'sortDate':val(r,'gameDate')||val(r,'date')}));
+    const bo=classifyBunt(val(r,'pitchResult'));
+    if(bo) bunt.push({'Game Date':(val(r,'gameDate')||val(r,'date')).slice(0,10),'Team':team,'Opponent':val(r,'opponent'),'Inning':val(r,'inn'),'Count':val(r,'count'),'Pitch #':val(r,'pitchNumInAB'),'Player':val(r,'batterAbbrevName'),'Pitcher':val(r,'pitcherAbbrevName'),'Catcher':val(r,'catcherAbbrevName'),'Result':bo,'Pitch Result':val(r,'pitchResult'),'gameId':val(r,'gameId'),'sortDate':val(r,'gameDate')||val(r,'date')});
+  }
+  state.sbEvents=sb; state.buntEvents=bunt;
+}
+function makeTable(rows, dropSet=null, preferred=null){
+  if(!rows || !rows.length) return '<div class="small-note" style="padding:12px">No data.</div>';
+  let cols=preferred || Object.keys(rows[0]);
+  cols=cols.filter(c=>!(dropSet&&dropSet.has(c)) && !['gameId','sortDate'].includes(c));
+  let html='<table><thead><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+  for(const r of rows){html+='<tr>'+cols.map(c=>`<td>${val(r,c)}</td>`).join('')+'</tr>'}
+  return html+'</tbody></table>';
+}
+function cleanRows(rows, dropSet){return (rows||[]).map(r=>{let o={}; Object.keys(r).forEach(k=>{if(!dropSet.has(k)&&k!=='') o[k]=r[k]}); return o})}
+function teamQuick(){
+  const rows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy'));
+  const totalRow=rows.find(r=>val(r,'SplitBy').toUpperCase()==='TOTAL')||rows[0]||{}; const total=num(val(totalRow,'SBA'));
+  const byCount={}; rows.forEach(r=>{if(val(r,'Count')) byCount[val(r,'Count')]=num(val(r,'SBA'))});
+  const s=c=>byCount[c]||0; const first=s('0-0'), second=s('0-1')+s('1-0'), third=s('0-2')+s('1-1')+s('2-0');
+  const noStrikes=s('0-0')+s('1-0')+s('2-0')+s('3-0'); const pct=total?Math.round((first+second+third)/total*100):0;
+  return `* ${pct}% of SBA take place in the first three pitches\n** ${noStrikes}/${total} of SBA with 0 strikes\n\n- ${first}/${total} SBA in the 1st Pitch\n- ${second}/${total} SBA in the 2nd Pitch\n- ${third}/${total} SBA in the 3rd Pitch`;
+}
+function topPlayers(){
+  const rows=(state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))); const total=rows.reduce((s,r)=>s+num(val(r,'SBA')),0);
+  return rows.slice(0,5).map((r,i)=>{const sba=num(val(r,'SBA')); const first=num(val(r,'SBA0-0')); const second=num(val(r,'SBA0-1'))+num(val(r,'SBA1-0')); const third=num(val(r,'SBA0-2'))+num(val(r,'SBA1-1'))+num(val(r,'SBA2-0')); const name=val(r,'abbrevName')||normalizeName(val(r,'playerFullName')); return `${i+1}) ${name}: ${sba} / ${total} SBA --- ${first}/${sba} in the 1st pitch / ${second}/${sba} in the 2nd pitch / ${third}/${sba} in the 3rd pitch`;}).join('\n\n');
+}
+function buntSummary(){
+  const rows=(state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#'))); const total=rows.reduce((s,r)=>s+num(val(r,'Bunt#')),0);
+  const main=rows.slice(0,6).map((r,i)=>`${i+1}) ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}: ${num(val(r,'Bunt#'))}/${total}`).join('\n\n');
+  const ones=rows.filter(r=>num(val(r,'Bunt#'))===1).map(r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName')));
+  return main + (ones.length?`\n\n* ${ones.join(', ')}, each with 1 bunt attempt.`:'');
+}
+function gameSummary(gid,title){
+  const sb=state.sbEvents.filter(r=>r.gameId===gid), bunts=state.buntEvents.filter(r=>r.gameId===gid); let lines=[title];
+  if(sb.length){lines.push(`- SBA: ${sb.filter(r=>r.Result==='SB').length}/${sb.length}`); sb.forEach(r=>lines.push(`  - ${r.Runner} (conteo ${r.Count}, ${r.Pitcher} / ${r.Catcher}) - ${r.Result}`));} else lines.push('- SBA: No attempts');
+  if(bunts.length){lines.push(`- Bunt: ${bunts.filter(r=>r.Result==='Successful').length}/${bunts.length}`); bunts.forEach(r=>lines.push(`  - ${r.Player} (conteo ${r.Count}, ${String(r.Inning).toLowerCase()}) - ${r.Result}`));} else lines.push('- Bunt: No attempts');
+  return lines.join('\n');
+}
+function getGames(opponent,n){
+  const seen={}; (state.game||[]).forEach(r=>{if(val(r,'opponent')===opponent&&!seen[val(r,'gameId')]) seen[val(r,'gameId')]={gid:val(r,'gameId'),date:val(r,'gameDate')||val(r,'date'),opp:opponent}});
+  return Object.values(seen).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,n);
+}
+function getLastGame(){const seen={}; (state.game||[]).forEach(r=>{if(!seen[val(r,'gameId')]) seen[val(r,'gameId')]={gid:val(r,'gameId'),date:val(r,'gameDate')||val(r,'date'),opp:val(r,'opponent')}}); return Object.values(seen).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];}
+
+function topSbaRows(limit=5){
+  return (state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))).slice(0,limit);
+}
+function topBuntRows(limit=5){
+  return (state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#'))).slice(0,limit);
+}
+function topCountRows(limit=6){
+  const rows=(state.teamSba||[]).filter(r=>val(r,'Count') && !String(val(r,'SplitBy')).startsWith('SplitBy'));
+  return rows.sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))).slice(0,limit);
+}
+function tableHtml(rows, cols, cls=''){
+  if(!rows || !rows.length) return '<div class="pdf-note">No data.</div>';
+  return `<table class="pdf-table ${cls}"><thead><tr>`+cols.map(c=>`<th>${c.label}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>`<td>${c.get(r)}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
+}
+function buildPrintSummary(team,opp,cards){
+  const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const teamRows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy')).map(r=>{let o={...r}; if(!val(o,'Count')) o.Count='TOTAL'; return o});
+  const playerRows=(state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')));
+  const buntRows=(state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#')));
+  const totalSba=playerRows.reduce((s,r)=>s+num(val(r,'SBA')),0) || num(val((state.teamSba||[])[0],'SBA'));
+  const totalBunt=buntRows.reduce((s,r)=>s+num(val(r,'Bunt#')),0);
+  const topSbaText=playerRows.slice(0,5).map((r,i)=>{
+    const sba=num(val(r,'SBA')); const pct=totalSba?` (${Math.round(sba/totalSba*1000)/10}%)`:'';
+    return `${i+1}. ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}     ${sba} / ${totalSba}${pct}`;
+  }).join('\n');
+  const topBuntText=buntRows.slice(0,5).map((r,i)=>{
+    const b=num(val(r,'Bunt#')); const pct=totalBunt?` (${Math.round(b/totalBunt*1000)/10}%)`:'';
+    return `${i+1}. ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}     ${b} / ${totalBunt}${pct}`;
+  }).join('\n');
+  const teamCols=[
+    {label:'Count',get:r=>val(r,'Count')},{label:'G',get:r=>val(r,'G')},{label:'SBA',get:r=>val(r,'SBA')},{label:'SB',get:r=>val(r,'SB')},{label:'CS',get:r=>val(r,'CS')},{label:'SB%',get:r=>val(r,'SB%')},
+    {label:'SBA2',get:r=>val(r,'SBA2')},{label:'SB2',get:r=>val(r,'SB2')},{label:'CS2',get:r=>val(r,'CS2')},{label:'SB2%',get:r=>val(r,'SB2%')},{label:'SBA3',get:r=>val(r,'SBA3')},{label:'SB3',get:r=>val(r,'SB3')},{label:'CS3',get:r=>val(r,'CS3')},{label:'SB3%',get:r=>val(r,'SB3%')}
+  ];
+  const playerCols=[
+    {label:'Player',get:r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))},{label:'G',get:r=>val(r,'G')},{label:'SBA',get:r=>val(r,'SBA')},{label:'SB',get:r=>val(r,'SB')},{label:'CS',get:r=>calcCS(r)},{label:'SB%',get:r=>val(r,'SB%')},
+    {label:'0-0',get:r=>val(r,'SBA0-0')},{label:'0-1',get:r=>val(r,'SBA0-1')},{label:'0-2',get:r=>val(r,'SBA0-2')},{label:'1-0',get:r=>val(r,'SBA1-0')},{label:'1-1',get:r=>val(r,'SBA1-1')},{label:'1-2',get:r=>val(r,'SBA1-2')},{label:'2-0',get:r=>val(r,'SBA2-0')},{label:'2-1',get:r=>val(r,'SBA2-1')},{label:'2-2',get:r=>val(r,'SBA2-2')},{label:'3-0',get:r=>val(r,'SBA3-0')},{label:'3-1',get:r=>val(r,'SBA3-1')},{label:'3-2',get:r=>val(r,'SBA3-2')}
+  ];
+  const buntCols=[
+    {label:'Player',get:r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))},{label:'G',get:r=>val(r,'G')},{label:'Bunt',get:r=>calcBunt(r)},{label:'Succ',get:r=>calcSucc(r)},{label:'Unsucc',get:r=>calcUnsucc(r)},{label:'Succ%',get:r=>calcSuccPct(r)},{label:'SB',get:r=>val(r,'SB')},{label:'SBA',get:r=>val(r,'SBA')}
+  ];
+  document.getElementById('printSummary').innerHTML = `
+    <div class="print-page">
+      <div class="topbar">
+        <div class="brand"><div class="logo-pair">${logoHtml(document.getElementById('homeLogoSelect')?.value||'leones')}<span class="vs-dot">VS</span>${logoHtml(document.getElementById('oppLogoSelect')?.value||'aguilas')}</div><div><h1>${reportTitleValue(team,opp)}</h1><div class="pdf-meta">Generated ${today} • Recent Games • Overall SBA • Player SBA • Bunt Attempts</div></div></div>
+      </div>
+      <div class="pdf-section tight one-recent">
+        <div class="pdf-title">I. Recent Games</div>
+        <div class="pdf-grid-3">${cards.map(c=>`<div class="pdf-card"><h3>${c.split('\n')[0]}</h3><div class="pdf-lines">${c.split('\n').slice(1).join('\n')}</div></div>`).join('')}</div>
+      </div>
+      <div class="top-row">
+        <div class="pdf-section tight">
+          <div class="pdf-title">II. ${team} – Overall SBA</div>
+          <div class="summary-mini">${document.getElementById('overallText').textContent}</div>
+        </div>
+        <div class="pdf-section tight">
+          <div class="pdf-title">II. ${team} – Team SBA by Count</div>
+          ${tableHtml(teamRows,teamCols,'compact')}
+        </div>
+      </div>
+      <div class="bottom-row">
+        <div class="pdf-section tight">
+          <div class="pdf-title">III. ${team} – SBA By Player</div>
+          <div class="subgrid">
+            <div><div class="pdf-title" style="font-size:8px;margin-bottom:4px">Top 5 SBA Players</div><div class="leader-list">${topSbaText}</div></div>
+            <div>${tableHtml(playerRows,playerCols,'players')}</div>
+          </div>
+        </div>
+        <div class="pdf-section tight">
+          <div class="pdf-title">IV. ${team} – Bunt Attempts</div>
+          <div class="subgrid-bunt">
+            <div><div class="pdf-title" style="font-size:8px;margin-bottom:4px">Top 5 Bunters</div><div class="leader-list">${topBuntText}</div></div>
+            <div>${tableHtml(buntRows,buntCols,'bunts')}</div>
+          </div>
+        </div>
+      </div>
+      <div class="print-foot">SBA = Stolen Base Attempts &nbsp; | &nbsp; SB = Stolen Bases &nbsp; | &nbsp; CS = Caught Stealing &nbsp; | &nbsp; SB% = Stolen Base Percentage</div>
+    </div>`;
+}
+
+function generate(){clearMsg(); if(!state.game){msg('Upload the Pregame CSV first.'); return;} eventTables(); const team=document.getElementById('reportTeam').value || 'TEAM'; const opp=document.getElementById('opponentSelect').value; const n=parseInt(document.getElementById('h2hN').value||2);
+  document.getElementById('report').classList.remove('hidden'); if(!document.getElementById('customTitle').value){document.getElementById('customTitle').value=`Pregame Report – ${team} vs ${opp}`;} document.getElementById('pageTitle').textContent=reportTitleValue(team,opp); updateLogos(); document.getElementById('recentTitle').textContent=`vs ${opp}`; document.getElementById('overallTitle').textContent=`${team} - Overall SBA`; document.getElementById('playerTitle').textContent=`${team} - SBA By Player`; document.getElementById('buntTitle').textContent=`${team} - Bunt Attempts`;
+  const cards=[]; getGames(opp,n).forEach(g=>cards.push(gameSummary(g.gid,`Partido - ${dateLabel(g.date)} vs ${g.opp}`))); const lg=getLastGame(); if(lg) cards.push(gameSummary(lg.gid,`Last Game - ${dateLabel(lg.date)} vs ${lg.opp}`));
+  document.getElementById('gameCards').innerHTML=cards.map(c=>`<div class="game-card"><h3>${c.split('\n')[0]}</h3><div class="lines">${c.split('\n').slice(1).join('\n')}</div></div>`).join('');
+  document.getElementById('overallText').textContent=state.teamSba?teamQuick():'Upload Team SBA by Count CSV.';
+  document.getElementById('playerText').textContent=state.playerSba?topPlayers():'Upload Player SBA CSV.';
+  document.getElementById('buntText').textContent=state.bunt?buntSummary():'Upload Bunt + SBA CSV.';
+  const teamRows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy')).map(r=>{let o={...r}; if(o.Count==='') o.Count='TOTAL'; return o});
+  document.getElementById('teamSbaTable').innerHTML=makeTable(cleanRows(teamRows,dropColsTeam), null, ['Count','G','SBA','SB','CS','SB%','SBA2','SB2','CS2','SB2%','SBA3','SB3','CS3','SB3%']);
+  document.getElementById('playerSbaTable').innerHTML=makeTable(playerDisplayRows((state.playerSba||[]).filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')))), null, ['Player','Pos','G','SBA','SB','CS','SB%','SBA0-0','SBA0-1','SBA0-2','SBA1-0','SBA1-1','SBA1-2','SBA2-0','SBA2-1','SBA2-2','SBA3-0','SBA3-1','SBA3-2']);
+  document.getElementById('buntTable').innerHTML=makeTable(buntDisplayRows((state.bunt||[]).filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#')))), null, ['Player','Pos','G','Bunt','Succ','Unsucc','Succ%','SB','SBA']);
+  document.getElementById('sbaEventsTable').innerHTML=makeTable(state.sbEvents,null,['Game Date','Team','Opponent','Inning','Count','Pitch #','Runner','Base','Pitcher','Catcher','Result']);
+  document.getElementById('buntEventsTable').innerHTML=makeTable(state.buntEvents,null,['Game Date','Team','Opponent','Inning','Count','Pitch #','Player','Pitcher','Catcher','Result','Pitch Result']);
+  buildPrintSummary(team,opp,cards);
+  const email=['Buenas,','',`Adelante les envío los más destacados robando base y tocando para ${team}, dividido por cuenta de picheo.`,'',...cards,'',`I) ${team} - Overall SBA`,document.getElementById('overallText').textContent,'',`II) ${team} - SBA By Player`,document.getElementById('playerText').textContent,'',`III) ${team} - Bunt Attempts`,document.getElementById('buntText').textContent,'','Saludos,'].join('\n');
+  document.getElementById('emailText').value=email;
+}
+
+document.getElementById('customTitle').addEventListener('input',()=>{document.getElementById('pageTitle').textContent=document.getElementById('customTitle').value || 'Pregame Report Generator';});
+document.getElementById('homeLogoSelect').addEventListener('change',updateLogos);
+document.getElementById('oppLogoSelect').addEventListener('change',updateLogos);
+updateLogos();
+
+async function copyReport(){const t=document.getElementById('emailText').value; if(!t){msg('Generate a report first.'); return;} await navigator.clipboard.writeText(t); msg('Report copied to clipboard.');}
+</script>
+</body>
+</html>
