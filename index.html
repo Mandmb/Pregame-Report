@@ -240,7 +240,7 @@ function parseCSVText(text){
   }
   if(cell!=='' || row.length){ row.push(cell); rows.push(row); }
   if(!rows.length) return [];
-  const headers=rows[0].map(h=>String(h||'').trim());
+  const headers=rows[0].map(h=>String(h||'').replace(/^\uFEFF/, '').trim());
   return rows.slice(1).filter(r=>r.some(c=>String(c||'').trim()!=='')).map(r=>{
     const o={}; headers.forEach((h,i)=>o[h]=r[i]??''); return o;
   });
@@ -252,6 +252,98 @@ const dropColsTeam = new Set(['SplitBy','teamId','Count_Sort','entityKey','CSH',
 const dropColsPlayer = new Set(['Rank','playerId','abbrevName','player','playerFirstName','currentTeamName','currentTeamAbbrevName','currentTeamId','currentTeamLocation','currentTeamLevel','currentOrg','newestTeamName','newestTeamAbbrevName','newestTeamId','newestTeamLocation','newestTeamLevel','newestOrg','batsHand','throwsHand']);
 const countOrder = ['0-0','0-1','0-2','1-0','1-1','1-2','2-0','2-1','2-2','3-0','3-1','3-2'];
 function val(r,c){return (r && r[c]!==undefined && r[c]!==null) ? String(r[c]).trim() : ''}
+function valAny(r, keys){
+  if(!r) return '';
+  for(const k of keys){ if(r[k]!==undefined && r[k]!==null && String(r[k]).trim()!=='') return String(r[k]).trim(); }
+  const wanted = keys.map(k=>String(k).toLowerCase().replace(/[^a-z0-9]/g,''));
+  for(const actual of Object.keys(r)){
+    const clean = String(actual).toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(wanted.includes(clean) && r[actual]!==undefined && r[actual]!==null && String(r[actual]).trim()!=='') return String(r[actual]).trim();
+  }
+  return '';
+}
+function playerName(r){
+  if(!r) return 'Unknown';
+  // First try the exact player-name columns used by the SBA Count and Bunt + SBA CSVs.
+  let raw = valAny(r,[
+    'abbrevName','abbrevname','AbbrevName','Abbrevname','PLAYERABBREVNAME','playerAbbrevName','PlayerAbbrevName',
+    'playerFullName','playerfullname','PlayerFullName','PLAYERFULLNAME','fullName','fullname','FullName',
+    'playerName','playername','PlayerName','PLAYERNAME','name','Name',
+    'player','Player','PLAYER','batterAbbrevName','BatterAbbrevName','runner','Runner'
+  ]);
+
+  // If a CSV has first and last split across columns, rebuild it.
+  if(!raw){
+    const first = valAny(r,['playerFirstName','playerfirstname','PlayerFirstName','firstName','FirstName']);
+    const last = valAny(r,['playerLastName','playerlastname','PlayerLastName','lastName','LastName','player','Player']);
+    if(first || last) raw = `${first} ${last}`.trim();
+  }
+
+  // Last-resort fuzzy search: use any column whose header clearly contains a player/name field.
+  if(!raw){
+    for(const actual of Object.keys(r)){
+      const clean = String(actual).toLowerCase().replace(/[^a-z0-9]/g,'');
+      if((clean.includes('abbrev') || clean.includes('fullname') || clean.includes('playername') || clean==='player' || clean==='name') && String(r[actual]||'').trim()){
+        raw = String(r[actual]).trim();
+        break;
+      }
+    }
+  }
+
+  if(!raw) return 'Unknown';
+  raw = String(raw).trim();
+  if(/^[A-ZÁÉÍÓÚÑ]\./i.test(raw) || !raw.includes(' ')) return raw;
+  return normalizeName(raw) || raw;
+}
+
+function isLikelySummaryRow(r){
+  const name = playerName(r);
+  const nameRaw = (valAny(r,['abbrevName','playerFullName','playerName','Player','player','Name','name']) || '').toLowerCase().trim();
+  const badWords = ['total','totals','average','averages','team','league','summary','splitby','count'];
+  if(!r) return true;
+  if(!name || name === 'Unknown') return true;
+  if(badWords.some(w => name.toLowerCase() === w || name.toLowerCase().includes(w) || nameRaw === w || nameRaw.includes(w))) return true;
+  // Real player exports include at least one of these identity fields. This keeps team/count summary rows out of player rankings.
+  const hasPlayerIdentity = !!valAny(r,['abbrevName','playerFullName','playerName','playerId','pos','playerFirstName']);
+  return !hasPlayerIdentity;
+}
+function validPlayerSbaRows(){
+  return (state.playerSba||[]).slice().filter(r => !isLikelySummaryRow(r) && num(val(r,'SBA')) > 0);
+}
+function validBuntRows(){
+  return (state.bunt||[]).slice().filter(r => !isLikelySummaryRow(r) && calcBunt(r) > 0);
+}
+function topSbaFromEvents(){
+  const map = {};
+  (state.sbEvents||[]).forEach(e => {
+    const name = String(e.Runner||'').trim();
+    if(!name || name.toLowerCase()==='runner' || name.toLowerCase()==='unknown') return;
+    if(!map[name]) map[name] = {name, SBA:0, SB:0, CS:0, counts:{}};
+    map[name].SBA += 1;
+    if(e.Result==='SB') map[name].SB += 1; else if(e.Result==='CS') map[name].CS += 1;
+    map[name].counts[e.Count] = (map[name].counts[e.Count]||0) + 1;
+  });
+  const top = Object.values(map).sort((a,b)=>b.SBA-a.SBA)[0];
+  if(!top) return null;
+  return {__eventName:top.name, SBA:String(top.SBA), SB:String(top.SB), CS:String(top.CS), 'SBA0-0':String(top.counts['0-0']||0)};
+}
+function topBuntFromEvents(){
+  const map = {};
+  (state.buntEvents||[]).forEach(e => {
+    const name = String(e.Player||'').trim();
+    if(!name || name.toLowerCase()==='unknown') return;
+    if(!map[name]) map[name] = {name, attempts:0, succ:0};
+    map[name].attempts += 1;
+    if(e.Result==='Successful') map[name].succ += 1;
+  });
+  const top = Object.values(map).sort((a,b)=>b.attempts-a.attempts)[0];
+  if(!top) return null;
+  return {__eventName:top.name, 'Bunt#':String(top.attempts), 'Bunt Hit':String(top.succ)};
+}
+function displayPlayerName(r){
+  return (r && r.__eventName) ? r.__eventName : playerName(r);
+}
+
 function num(x){let n=parseFloat(String(x ?? '').replace('%','')); return Number.isFinite(n)?n:0}
 
 function pctText(n,d){n=num(n); d=num(d); return d ? (Math.round((n/d*100)*10)/10).toFixed(1)+'%' : ''}
@@ -262,12 +354,12 @@ function calcSucc(r){return num(val(r,'Bunt Hit')||val(r,'BuntHit')||val(r,'Succ
 function calcUnsucc(r){const existing=val(r,'Unsucc')||val(r,'BuntOut')||val(r,'Bunt Out'); return existing!=='' ? existing : String(Math.max(0,calcBunt(r)-calcSucc(r)));}
 function calcSuccPct(r){const existing=val(r,'Succ%')||val(r,'Bunt%')||val(r,'BuntHit%'); return existing!=='' ? existing : pctText(calcSucc(r),calcBunt(r));}
 function playerDisplayRows(rows){return (rows||[]).map(r=>({
-  'Player': val(r,'abbrevName')||normalizeName(val(r,'playerFullName')),
+  'Player': displayPlayerName(r),
   'Pos': val(r,'pos'), 'G': val(r,'G'), 'SBA': val(r,'SBA'), 'SB': val(r,'SB'), 'CS': calcCS(r), 'SB%': val(r,'SB%'),
   'SBA0-0': val(r,'SBA0-0'), 'SBA0-1': val(r,'SBA0-1'), 'SBA0-2': val(r,'SBA0-2'), 'SBA1-0': val(r,'SBA1-0'), 'SBA1-1': val(r,'SBA1-1'), 'SBA1-2': val(r,'SBA1-2'), 'SBA2-0': val(r,'SBA2-0'), 'SBA2-1': val(r,'SBA2-1'), 'SBA2-2': val(r,'SBA2-2'), 'SBA3-0': val(r,'SBA3-0'), 'SBA3-1': val(r,'SBA3-1'), 'SBA3-2': val(r,'SBA3-2')
 }));}
 function buntDisplayRows(rows){return (rows||[]).map(r=>({
-  'Player': val(r,'abbrevName')||normalizeName(val(r,'playerFullName')),
+  'Player': displayPlayerName(r),
   'Pos': val(r,'pos'), 'G': val(r,'G'), 'Bunt': calcBunt(r), 'Succ': calcSucc(r), 'Unsucc': calcUnsucc(r), 'Succ%': calcSuccPct(r), 'SB': val(r,'SB'), 'SBA': val(r,'SBA')
 }));}
 function parseDate(s){let d=new Date(s); return isNaN(d)?null:d}
@@ -463,13 +555,13 @@ function teamQuick(){
   return `* ${pct}% of SBA take place in the first three pitches\n** ${noStrikes}/${total} of SBA with 0 strikes\n\n- ${first}/${total} SBA in the 1st Pitch\n- ${second}/${total} SBA in the 2nd Pitch\n- ${third}/${total} SBA in the 3rd Pitch`;
 }
 function topPlayers(){
-  const rows=(state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))); const total=rows.reduce((s,r)=>s+num(val(r,'SBA')),0);
-  return rows.slice(0,5).map((r,i)=>{const sba=num(val(r,'SBA')); const first=num(val(r,'SBA0-0')); const second=num(val(r,'SBA0-1'))+num(val(r,'SBA1-0')); const third=num(val(r,'SBA0-2'))+num(val(r,'SBA1-1'))+num(val(r,'SBA2-0')); const name=val(r,'abbrevName')||normalizeName(val(r,'playerFullName')); return `${i+1}) ${name}: ${sba} / ${total} SBA --- ${first}/${sba} in the 1st pitch / ${second}/${sba} in the 2nd pitch / ${third}/${sba} in the 3rd pitch`;}).join('\n\n');
+  const rows=validPlayerSbaRows().sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))); const total=rows.reduce((s,r)=>s+num(val(r,'SBA')),0);
+  return rows.slice(0,5).map((r,i)=>{const sba=num(val(r,'SBA')); const first=num(val(r,'SBA0-0')); const second=num(val(r,'SBA0-1'))+num(val(r,'SBA1-0')); const third=num(val(r,'SBA0-2'))+num(val(r,'SBA1-1'))+num(val(r,'SBA2-0')); const name=playerName(r); return `${i+1}) ${name}: ${sba} / ${total} SBA --- ${first}/${sba} in the 1st pitch / ${second}/${sba} in the 2nd pitch / ${third}/${sba} in the 3rd pitch`;}).join('\n\n');
 }
 function buntSummary(){
-  const rows=(state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#'))); const total=rows.reduce((s,r)=>s+num(val(r,'Bunt#')),0);
-  const main=rows.slice(0,6).map((r,i)=>`${i+1}) ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}: ${num(val(r,'Bunt#'))}/${total}`).join('\n\n');
-  const ones=rows.filter(r=>num(val(r,'Bunt#'))===1).map(r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName')));
+  const rows=validBuntRows().sort((a,b)=>calcBunt(b)-calcBunt(a)); const total=rows.reduce((s,r)=>s+num(val(r,'Bunt#')),0);
+  const main=rows.slice(0,6).map((r,i)=>`${i+1}) ${playerName(r)}: ${num(val(r,'Bunt#'))}/${total}`).join('\n\n');
+  const ones=rows.filter(r=>num(val(r,'Bunt#'))===1).map(r=>playerName(r));
   return main + (ones.length?`\n\n* ${ones.join(', ')}, each with 1 bunt attempt.`:'');
 }
 function gameSummary(gid,title){
@@ -485,10 +577,16 @@ function getGames(opponent,n){
 function getLastGame(){const seen={}; (state.game||[]).forEach(r=>{if(!seen[val(r,'gameId')]) seen[val(r,'gameId')]={gid:val(r,'gameId'),date:val(r,'gameDate')||val(r,'date'),opp:val(r,'opponent')}}); return Object.values(seen).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];}
 
 function topSbaRows(limit=5){
-  return (state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA'))).slice(0,limit);
+  const rows = validPlayerSbaRows().sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')));
+  if(rows.length) return rows.slice(0,limit);
+  const fallback = topSbaFromEvents();
+  return fallback ? [fallback] : [];
 }
 function topBuntRows(limit=5){
-  return (state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#'))).slice(0,limit);
+  const rows = validBuntRows().sort((a,b)=>calcBunt(b)-calcBunt(a));
+  if(rows.length) return rows.slice(0,limit);
+  const fallback = topBuntFromEvents();
+  return fallback ? [fallback] : [];
 }
 function topCountRows(limit=6){
   const rows=(state.teamSba||[]).filter(r=>val(r,'Count') && !String(val(r,'SplitBy')).startsWith('SplitBy'));
@@ -515,8 +613,8 @@ function coachNotesText(){
   const topBunt=topBuntRows(1)[0];
   const notes=[];
   if(t.total){notes.push(`• ${Math.round(t.first3/t.total*100)}% of SBA are in the first 3 pitches`);notes.push(`• ${t.noStrikes}/${t.total} SBA come with 0 strikes`);}
-  if(topSba){const name=val(topSba,'abbrevName')||normalizeName(val(topSba,'playerFullName')); const sba=num(val(topSba,'SBA')); const first=num(val(topSba,'SBA0-0')); notes.push(`• Top running threat: ${name} (${sba} SBA${first?`, ${first} on 0-0`:''})`);}
-  if(topBunt){const name=val(topBunt,'abbrevName')||normalizeName(val(topBunt,'playerFullName')); notes.push(`• Top bunt threat: ${name} (${calcBunt(topBunt)} attempts)`);}
+  if(topSba){const name=displayPlayerName(topSba); const sba=num(val(topSba,'SBA')); const first=num(val(topSba,'SBA0-0')); notes.push(`• Top running threat: ${name} (${sba} SBA${first?`, ${first} on 0-0`:''})`);}
+  if(topBunt){const name=displayPlayerName(topBunt); notes.push(`• Top bunt threat: ${name} (${calcBunt(topBunt)} attempts)`);}
   const vuln=batteryVulnerabilityRows(1)[0];
   if(vuln) notes.push(`• Most targeted battery: ${vuln.Battery} (${vuln.SBA} SBA, ${vuln['SB%']})`);
   return notes.length?notes.join('\n'):'Upload/generate data to create notes.';
@@ -542,17 +640,17 @@ function batteryVulnerabilityRows(limit=8){
 function buildPrintSummary(team,opp,cards){
   const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const teamRows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy')).map(r=>{let o={...r}; if(!val(o,'Count')) o.Count='TOTAL'; return o});
-  const playerRows=(state.playerSba||[]).slice().filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')));
-  const buntRows=(state.bunt||[]).slice().filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#')));
+  const playerRows=validPlayerSbaRows().sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')));
+  const buntRows=validBuntRows().sort((a,b)=>calcBunt(b)-calcBunt(a));
   const totalSba=playerRows.reduce((s,r)=>s+num(val(r,'SBA')),0) || num(val((state.teamSba||[])[0],'SBA'));
   const totalBunt=buntRows.reduce((s,r)=>s+num(val(r,'Bunt#')),0);
   const topSbaText=playerRows.slice(0,5).map((r,i)=>{
     const sba=num(val(r,'SBA')); const pct=totalSba?` (${Math.round(sba/totalSba*1000)/10}%)`:'';
-    return `${i+1}. ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}     ${sba} / ${totalSba}${pct}`;
+    return `${i+1}. ${playerName(r)}     ${sba} / ${totalSba}${pct}`;
   }).join('\n');
   const topBuntText=buntRows.slice(0,5).map((r,i)=>{
     const b=num(val(r,'Bunt#')); const pct=totalBunt?` (${Math.round(b/totalBunt*1000)/10}%)`:'';
-    return `${i+1}. ${val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))}     ${b} / ${totalBunt}${pct}`;
+    return `${i+1}. ${playerName(r)}     ${b} / ${totalBunt}${pct}`;
   }).join('\n');
   const pdfCoachNotes=coachNotesText();
   const pdfRecentTrends=recentTrendsText();
@@ -563,11 +661,11 @@ function buildPrintSummary(team,opp,cards){
     {label:'SBA2',get:r=>val(r,'SBA2')},{label:'SB2',get:r=>val(r,'SB2')},{label:'CS2',get:r=>val(r,'CS2')},{label:'SB2%',get:r=>val(r,'SB2%')},{label:'SBA3',get:r=>val(r,'SBA3')},{label:'SB3',get:r=>val(r,'SB3')},{label:'CS3',get:r=>val(r,'CS3')},{label:'SB3%',get:r=>val(r,'SB3%')}
   ];
   const playerCols=[
-    {label:'Player',get:r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))},{label:'G',get:r=>val(r,'G')},{label:'SBA',get:r=>val(r,'SBA')},{label:'SB',get:r=>val(r,'SB')},{label:'CS',get:r=>calcCS(r)},{label:'SB%',get:r=>val(r,'SB%')},
+    {label:'Player',get:r=>playerName(r)},{label:'G',get:r=>val(r,'G')},{label:'SBA',get:r=>val(r,'SBA')},{label:'SB',get:r=>val(r,'SB')},{label:'CS',get:r=>calcCS(r)},{label:'SB%',get:r=>val(r,'SB%')},
     {label:'0-0',get:r=>val(r,'SBA0-0')},{label:'0-1',get:r=>val(r,'SBA0-1')},{label:'0-2',get:r=>val(r,'SBA0-2')},{label:'1-0',get:r=>val(r,'SBA1-0')},{label:'1-1',get:r=>val(r,'SBA1-1')},{label:'1-2',get:r=>val(r,'SBA1-2')},{label:'2-0',get:r=>val(r,'SBA2-0')},{label:'2-1',get:r=>val(r,'SBA2-1')},{label:'2-2',get:r=>val(r,'SBA2-2')},{label:'3-0',get:r=>val(r,'SBA3-0')},{label:'3-1',get:r=>val(r,'SBA3-1')},{label:'3-2',get:r=>val(r,'SBA3-2')}
   ];
   const buntCols=[
-    {label:'Player',get:r=>val(r,'abbrevName')||normalizeName(val(r,'playerFullName'))},{label:'G',get:r=>val(r,'G')},{label:'Bunt',get:r=>calcBunt(r)},{label:'Succ',get:r=>calcSucc(r)},{label:'Unsucc',get:r=>calcUnsucc(r)},{label:'Succ%',get:r=>calcSuccPct(r)},{label:'SB',get:r=>val(r,'SB')},{label:'SBA',get:r=>val(r,'SBA')}
+    {label:'Player',get:r=>playerName(r)},{label:'G',get:r=>val(r,'G')},{label:'Bunt',get:r=>calcBunt(r)},{label:'Succ',get:r=>calcSucc(r)},{label:'Unsucc',get:r=>calcUnsucc(r)},{label:'Succ%',get:r=>calcSuccPct(r)},{label:'SB',get:r=>val(r,'SB')},{label:'SBA',get:r=>val(r,'SBA')}
   ];
   document.getElementById('printSummary').innerHTML = `
     <div class="print-page">
@@ -625,8 +723,8 @@ function generate(){clearMsg(); if(!state.game){msg('Upload the Pregame CSV firs
   document.getElementById('buntText').textContent=state.bunt?buntSummary():'Upload Bunt + SBA CSV.';
   const teamRows=(state.teamSba||[]).filter(r=>!String(val(r,'SplitBy')).startsWith('SplitBy')).map(r=>{let o={...r}; if(o.Count==='') o.Count='TOTAL'; return o});
   document.getElementById('teamSbaTable').innerHTML=makeTable(cleanRows(teamRows,dropColsTeam), null, ['Count','G','SBA','SB','CS','SB%','SBA2','SB2','CS2','SB2%','SBA3','SB3','CS3','SB3%']);
-  document.getElementById('playerSbaTable').innerHTML=makeTable(playerDisplayRows((state.playerSba||[]).filter(r=>num(val(r,'SBA'))>0).sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')))), null, ['Player','Pos','G','SBA','SB','CS','SB%','SBA0-0','SBA0-1','SBA0-2','SBA1-0','SBA1-1','SBA1-2','SBA2-0','SBA2-1','SBA2-2','SBA3-0','SBA3-1','SBA3-2']);
-  document.getElementById('buntTable').innerHTML=makeTable(buntDisplayRows((state.bunt||[]).filter(r=>num(val(r,'Bunt#'))>0).sort((a,b)=>num(val(b,'Bunt#'))-num(val(a,'Bunt#')))), null, ['Player','Pos','G','Bunt','Succ','Unsucc','Succ%','SB','SBA']);
+  document.getElementById('playerSbaTable').innerHTML=makeTable(playerDisplayRows(validPlayerSbaRows().sort((a,b)=>num(val(b,'SBA'))-num(val(a,'SBA')))), null, ['Player','Pos','G','SBA','SB','CS','SB%','SBA0-0','SBA0-1','SBA0-2','SBA1-0','SBA1-1','SBA1-2','SBA2-0','SBA2-1','SBA2-2','SBA3-0','SBA3-1','SBA3-2']);
+  document.getElementById('buntTable').innerHTML=makeTable(buntDisplayRows(validBuntRows().sort((a,b)=>calcBunt(b)-calcBunt(a))), null, ['Player','Pos','G','Bunt','Succ','Unsucc','Succ%','SB','SBA']);
   document.getElementById('sbaEventsTable').innerHTML=makeTable(state.sbEvents,null,['Game Date','Team','Opponent','Inning','Count','Pitch #','Runner','Base','Pitcher','Catcher','Result']);
   document.getElementById('buntEventsTable').innerHTML=makeTable(state.buntEvents,null,['Game Date','Team','Opponent','Inning','Count','Pitch #','Player','Pitcher','Catcher','Result','Pitch Result']);
   buildPrintSummary(team,opp,cards);
